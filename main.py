@@ -3,6 +3,8 @@ from tkinter import ttk, messagebox, filedialog
 from datetime import datetime
 from database import PayrollDatabase
 from excel_handler import ExcelHandler
+from ollama_analyzer import OllamaAnalyzer
+
 
 class PayrollSystemGUI:
     def __init__(self, root):
@@ -11,6 +13,7 @@ class PayrollSystemGUI:
         self.root.geometry("1200x700")
         self.db = PayrollDatabase()
         self.excel_handler = ExcelHandler(self.db)
+        self.ollama_analyzer = OllamaAnalyzer(self.db)
         self.current_year = datetime.now().year
         self.current_month = datetime.now().month
         self.create_main_interface()
@@ -39,16 +42,19 @@ class PayrollSystemGUI:
         self.attendance_tab = ttk.Frame(notebook)
         self.performance_tab = ttk.Frame(notebook)
         self.payroll_tab = ttk.Frame(notebook)
+        self.ai_tab = ttk.Frame(notebook)
         
         notebook.add(self.employee_tab, text="👥 员工管理")
         notebook.add(self.attendance_tab, text="📅 考勤管理")
         notebook.add(self.performance_tab, text="⭐ 绩效管理")
         notebook.add(self.payroll_tab, text="💰 工资核算")
+        notebook.add(self.ai_tab, text="🤖 AI 分析")
         
         self.create_employee_tab()
         self.create_attendance_tab()
         self.create_performance_tab()
         self.create_payroll_tab()
+        self.create_ai_tab()
 
     def create_employee_tab(self):
         toolbar = ttk.Frame(self.employee_tab, padding="5")
@@ -138,6 +144,95 @@ class PayrollSystemGUI:
         scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
         
         self.load_payroll_data()
+
+    def create_ai_tab(self):
+        toolbar = ttk.Frame(self.ai_tab, padding="10")
+        toolbar.pack(fill=tk.X)
+        
+        ttk.Label(toolbar, text="选择功能：", font=('Arial', 10, 'bold')).pack(side=tk.LEFT, padx=10)
+        
+        functions = [
+            ("📊 分析整体工资数据", self.analyze_overall),
+            ("💬 分析单个员工工资", self.analyze_employee),
+            ("📈 预测工资趋势", self.predict_trend),
+            ("✍️ 生成绩效评估报告", self.generate_performance_review)
+        ]
+        
+        for text, command in functions:
+            ttk.Button(toolbar, text=text, command=command, width=200).pack(side=tk.LEFT, padx=5)
+        
+        ttk.Separator(self.ai_tab, orient='horizontal').pack(fill=tk.X, pady=10)
+        
+        self.ai_output = tk.Text(self.ai_tab, height=20, width=100, wrap=tk.WORD, padx=10, pady=10)
+        self.ai_output.pack(fill=tk.BOTH, expand=True)
+        
+        scrollbar = ttk.Scrollbar(self.ai_tab, orient=tk.VERTICAL, command=self.ai_output.yview)
+        self.ai_output.configure(yscrollcommand=scrollbar.set)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
+    def analyze_overall(self):
+        year = int(self.year_var.get())
+        month = int(self.month_var.get())
+        
+        self.ai_output.delete(1.0, tk.END)
+        self.ai_output.insert(tk.END, f"正在分析 {year}年{month}月 工资数据...\n\n")
+        self.root.update()
+        
+        result = self.ollama_analyzer.analyze_salary_data(year, month)
+        
+        self.ai_output.insert(tk.END, f"【AI 分析结果】\n\n{result}\n\n")
+
+    def analyze_employee(self):
+        selected = self.employee_tree.selection()
+        if not selected:
+            messagebox.showwarning("提示", "请先选择一个员工")
+            return
+        
+        employee_id = self.employee_tree.item(selected[0])['values'][0]
+        year = int(self.year_var.get())
+        month = int(self.month_var.get())
+        
+        self.ai_output.delete(1.0, tk.END)
+        self.ai_output.insert(tk.END, f"正在分析员工 {employee_id} 的工资建议...\n\n")
+        self.root.update()
+        
+        result = self.ollama_analyzer.suggest_salary_adjustment(employee_id, year, month)
+        
+        self.ai_output.insert(tk.END, f"【AI 分析结果】\n\n{result}\n\n")
+
+    def predict_trend(self):
+        selected = self.employee_tree.selection()
+        if not selected:
+            messagebox.showwarning("提示", "请先选择一个员工")
+            return
+        
+        employee_id = self.employee_tree.item(selected[0])['values'][0]
+        
+        self.ai_output.delete(1.0, tk.END)
+        self.ai_output.insert(tk.END, f"正在预测员工 {employee_id} 的工资趋势...\n\n")
+        self.root.update()
+        
+        result = self.ollama_analyzer.predict_salary_trend(employee_id)
+        
+        self.ai_output.insert(tk.END, f"【AI 预测结果】\n\n{result}\n\n")
+
+    def generate_performance_review(self):
+        selected = self.employee_tree.selection()
+        if not selected:
+            messagebox.showwarning("提示", "请先选择一个员工")
+            return
+        
+        employee_id = self.employee_tree.item(selected[0])['values'][0]
+        year = int(self.year_var.get())
+        month = int(self.month_var.get())
+        
+        self.ai_output.delete(1.0, tk.END)
+        self.ai_output.insert(tk.END, f"正在生成员工 {employee_id} 的绩效评估报告...\n\n")
+        self.root.update()
+        
+        result = self.ollama_analyzer.generate_performance_review(employee_id, year, month)
+        
+        self.ai_output.insert(tk.END, f"【AI 评估报告】\n\n{result}\n\n")
 
     def load_employee_data(self):
         for item in self.employee_tree.get_children():
@@ -443,10 +538,12 @@ class PayrollSystemGUI:
         self.load_payroll_data()
         messagebox.showinfo("提示", "数据刷新完成")
 
+
 def main():
     root = tk.Tk()
     app = PayrollSystemGUI(root)
     root.mainloop()
+
 
 if __name__ == '__main__':
     main()
