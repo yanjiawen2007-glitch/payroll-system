@@ -60,31 +60,17 @@ if %errorlevel% equ 0 (
 
 echo.
 echo ======================================
-echo     Starting Payroll System...
+echo     Starting Payroll System in NEW window...
 echo ======================================
 echo.
 
-REM Run main program
-python main.py
+REM Start in NEW window (close this window safely)
+start "Payroll System" cmd /k "cd /d \"%~dp0\" && python main.py && pause"
 
-REM Check result
-if %errorlevel% equ 0 (
-    echo.
-    echo ======================================
-    echo     Program exited normally
-    echo ======================================
-) else (
-    echo.
-    echo ======================================
-    echo     Program error
-    echo     Error code: %errorlevel%
-    echo ======================================
-    echo.
-    echo Possible reasons:
-    echo   1. Python dependencies not installed
-    echo   2. Database file permission issue
-    echo   3. Python version incompatible (Python 3.8+ recommended)
-    echo.
-)
-
-pause
+echo.
+echo ======================================
+echo     Payroll System started in new window
+echo     You can now close THIS window safely
+echo ======================================
+echo.
+timeout /t 3 >nul
