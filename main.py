@@ -1,10 +1,9 @@
 import tkinter as tk
-from tkinter import ttk, messagebox, filedialog
+from tkinter import ttk, messagebox, filedialog, simpledialog
 from datetime import datetime
 from database import PayrollDatabase
 from excel_handler import ExcelHandler
 from ollama_analyzer import OllamaAnalyzer
-from feishu_integration import FeishuImporter
 
 
 class PayrollSystemGUI:
@@ -44,21 +43,18 @@ class PayrollSystemGUI:
         self.performance_tab = ttk.Frame(notebook)
         self.payroll_tab = ttk.Frame(notebook)
         self.ai_tab = ttk.Frame(notebook)
-        self.feishu_tab = ttk.Frame(notebook)
         
         notebook.add(self.employee_tab, text="👥 员工管理")
         notebook.add(self.attendance_tab, text="📅 考勤管理")
         notebook.add(self.performance_tab, text="⭐ 绩效管理")
         notebook.add(self.payroll_tab, text="💰 工资核算")
         notebook.add(self.ai_tab, text="🤖 AI 分析")
-        notebook.add(self.feishu_tab, text="🚀 飞书集成")
         
         self.create_employee_tab()
         self.create_attendance_tab()
         self.create_performance_tab()
         self.create_payroll_tab()
         self.create_ai_tab()
-        self.create_feishu_tab()
 
     def create_employee_tab(self):
         toolbar = ttk.Frame(self.employee_tab, padding="5")
@@ -180,43 +176,6 @@ class PayrollSystemGUI:
         
         scrollbar = ttk.Scrollbar(self.ai_tab, orient=tk.VERTICAL, command=self.ai_output.yview)
         self.ai_output.configure(yscrollcommand=scrollbar.set)
-        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-
-    def create_feishu_tab(self):
-        """飞书集成标签页"""
-        # 配置区域
-        config_frame = ttk.LabelFrame(self.feishu_tab, text="🔑 飞书API配置", padding="10")
-        config_frame.pack(fill=tk.X, padx=5, pady=5)
-
-        ttk.Label(config_frame, text="飞书个人访问令牌:").grid(row=0, column=0, padx=5, pady=5, sticky=tk.W)
-        self.access_token_var = tk.StringVar()
-        ttk.Entry(config_frame, textvariable=self.access_token_var, width=60).grid(row=0, column=1, padx=5, pady=5, sticky=tk.W)
-
-        ttk.Button(config_frame, text="🔌 测试连接", command=self.test_feishu_connection).grid(row=1, column=0, columnspan=2, pady=10)
-
-        # 数据导入区域
-        import_frame = ttk.LabelFrame(self.feishu_tab, text="📥 从飞书导入数据", padding="10")
-        import_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
-
-        # 说明信息
-        info_text = """飞书表格信息（已配置）：
-• Base ID: NbGTbqBPXasagWsfGpHcklrTnnd
-• Table ID: tblHc3G5OyJGjpx2
-
-从飞书一键导入所有数据（员工、考勤、绩效）"""
-        ttk.Label(import_frame, text=info_text, justify=tk.LEFT).grid(row=0, column=0, columnspan=2, pady=10, sticky=tk.W)
-
-        ttk.Button(import_frame, text="📦 一键导入全部数据", command=self.import_all_from_feishu).grid(row=1, column=0, columnspan=2, pady=10)
-
-        # 日志区域
-        log_frame = ttk.LabelFrame(self.feishu_tab, text="📋 导入日志", padding="10")
-        log_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
-
-        self.log_text = tk.Text(log_frame, height=10, state=tk.DISABLED)
-        scrollbar = ttk.Scrollbar(log_frame, orient=tk.VERTICAL, command=self.log_text.yview)
-        self.log_text.configure(yscrollcommand=scrollbar.set)
-
-        self.log_text.pack(fill=tk.BOTH, expand=True)
         scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
     # ==================== 员工管理 ====================
@@ -664,90 +623,6 @@ class PayrollSystemGUI:
         self.ai_output.insert(tk.END, "\n" + "-" * 50 + "\n")
         self.ai_output.insert(tk.END, "✅ 分析完毕！\n")
         self.ai_output.see(tk.END)
-
-    # ==================== 飞书集成 ====================
-
-    def log_message(self, message: str):
-        """记录日志"""
-        self.log_text.config(state=tk.NORMAL)
-        self.log_text.insert(tk.END, message + "\n")
-        self.log_text.see(tk.END)
-        self.log_text.config(state=tk.DISABLED)
-
-    def test_feishu_connection(self):
-        """测试飞书连接"""
-        access_token = self.access_token_var.get().strip()
-
-        if not access_token:
-            messagebox.showerror("错误", "请输入飞书个人访问令牌")
-            return
-
-        try:
-            importer = FeishuImporter(access_token)
-            data = importer.import_all()
-
-            if data["employees"]:
-                self.log_message("✅ 飞书连接成功！")
-                messagebox.showinfo("成功", f"飞书连接成功！\n\n发现数据：\n• {len(data['employees'])} 名员工\n• {len(data['attendance'])} 条考勤记录\n• {len(data['performance'])} 条绩效记录")
-            else:
-                self.log_message("⚠️ 飞书连接成功，但没有数据")
-                messagebox.showwarning("提示", "飞书连接成功，但表格中没有数据")
-
-        except Exception as e:
-            self.log_message(f"❌ 飞书连接失败: {str(e)}")
-            messagebox.showerror("错误", f"飞书连接失败: {str(e)}")
-
-    def import_all_from_feishu(self):
-        """一键导入全部数据"""
-        access_token = self.access_token_var.get().strip()
-
-        if not access_token:
-            messagebox.showerror("错误", "请输入飞书个人访问令牌")
-            return
-
-        if not messagebox.askyesno("确认", "确定要从飞书导入全部数据吗？\n包括：员工、考勤、绩效"):
-            return
-
-        try:
-            self.log_message("=" * 50)
-            self.log_message("📥 开始从飞书导入数据...")
-
-            importer = FeishuImporter(access_token)
-            data = importer.import_all()
-
-            if not data["employees"]:
-                self.log_message("⚠️ 飞书表格中没有数据")
-                messagebox.showwarning("提示", "飞书表格中没有数据")
-                return
-
-            # 导入员工
-            self.log_message("📥 正在导入员工数据...")
-            emp_count = self.db.import_employees_from_feishu(data["employees"])
-            self.log_message(f"✅ 员工数据导入完成：{emp_count} 条")
-
-            # 导入考勤
-            self.log_message("📥 正在导入考勤数据...")
-            att_count = self.db.import_attendance_from_feishu(data["attendance"])
-            self.log_message(f"✅ 考勤数据导入完成：{att_count} 条")
-
-            # 导入绩效
-            self.log_message("📥 正在导入绩效数据...")
-            perf_count = self.db.import_performance_from_feishu(data["performance"])
-            self.log_message(f"✅ 绩效数据导入完成：{perf_count} 条")
-
-            self.log_message("=" * 50)
-            self.log_message("✅ 全部数据导入完成！")
-
-            # 刷新界面
-            self.load_employee_data()
-            self.load_attendance_data()
-            self.load_performance_data()
-
-            messagebox.showinfo("完成", f"数据导入完成！\n\n员工：{emp_count} 条\n考勤：{att_count} 条\n绩效：{perf_count} 条")
-
-        except Exception as e:
-            self.log_message(f"❌ 导入失败: {str(e)}")
-            messagebox.showerror("错误", f"导入失败: {str(e)}")
 
 
 def main():
