@@ -2,7 +2,7 @@
 chcp 65001 >nul 2>&1
 
 echo ======================================
-echo     Payroll System Launcher
+echo     Payroll Anytime Launcher
 echo ======================================
 echo.
 
@@ -23,7 +23,7 @@ if not exist "main.py" (
 )
 
 echo.
-echo Starting Payroll System...
+echo Starting Payroll Anytime...
 echo.
 
-start "" pythonw main.py
+start "Payroll Anytime" pythonw main.py
