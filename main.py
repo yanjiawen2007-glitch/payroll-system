@@ -9,7 +9,7 @@ from ollama_analyzer import OllamaAnalyzer
 class PayrollSystemGUI:
     def __init__(self, root):
         self.root = root
-        self.root.title("Payroll Anytime - 工资核算系统")
+        self.root.title("工资核算系统 - Payroll Anytime")
         self.root.geometry("1400x850")
         self.root.configure(bg='#FFFFFF')
         
@@ -19,39 +19,7 @@ class PayrollSystemGUI:
         self.current_year = datetime.now().year
         self.current_month = datetime.now().month
         
-        self.setup_styles()
         self.create_main_interface()
-
-    def setup_styles(self):
-        """配置Tk样式"""
-        style = ttk.Style()
-        
-        style.theme_use('clam')
-        
-        style.configure('TNotebook', 
-                      background='#FFFFFF',
-                      borderwidth=0)
-        
-        style.configure('TNotebook.Tab',
-                      background='#F5F5F7',
-                      foreground='#1D1D1F',
-                      padding=[24, 12],
-                      font=('Segoe UI', 10, 'normal'))
-        
-        style.map('TNotebook.Tab',
-                  background=[('selected', '#FFFFFF')],
-                  foreground=[('selected', '#007AFF')])
-        
-        style.configure('Treeview',
-                      background='#FFFFFF',
-                      foreground='#1D1D1F',
-                      rowheight=30,
-                      borderwidth=0)
-        
-        style.configure('Treeview.Heading',
-                      background='#F5F5F7',
-                      foreground='#1D1D1F',
-                      font=('Segoe UI Semibold', 11, 'normal'))
 
     def create_main_interface(self):
         navbar = tk.Frame(self.root, bg='#FFFFFF', height=60)
@@ -69,7 +37,7 @@ class PayrollSystemGUI:
         title_label.pack()
         
         subtitle_label = tk.Label(title_frame,
-                                text="简洁 • 直观 • 强大",
+                                text="Simple • Intuitive • Powerful",
                                 font=('Segoe UI', 9),
                                 bg='#FFFFFF',
                                 fg='#86868B')
@@ -103,7 +71,7 @@ class PayrollSystemGUI:
                               fg='#1D1D1F',
                               borderwidth=0,
                               padx=20,
-                              py=8,
+                              pady=8,
                               font=('Segoe UI', 10))
         refresh_btn.pack(side=tk.RIGHT, padx=30, pady=15)
 
@@ -130,12 +98,12 @@ class PayrollSystemGUI:
 
     def create_employee_tab(self):
         toolbar = tk.Frame(self.employee_tab, bg='#FFFFFF')
-        toolbar.pack(fill=tk.X)
+        toolbar.pack(fill=tk.X, pady=15)
         
         btn_frame = tk.Frame(toolbar, bg='#FFFFFF')
         btn_frame.pack(side=tk.LEFT)
         
-        self.create_button(btn_frame, "➕ 添加员工", "#007AFF", self.add_employee_dialog)
+        self.create_button(btn_frame, "+ 添加员工", "#007AFF", self.add_employee_dialog)
         self.create_button(btn_frame, "✏️ 编辑员工", "#F5F5F7", self.edit_employee_dialog)
         self.create_button(btn_frame, "🗑️ 删除员工", "#F5F5F7", self.delete_employee)
         self.create_button(btn_frame, "📤 导出员工列表", "#F5F5F7", self.export_employee_list)
@@ -143,16 +111,27 @@ class PayrollSystemGUI:
         search_frame = tk.Frame(toolbar, bg='#FFFFFF')
         search_frame.pack(side=tk.RIGHT, padx=20)
         
-        self.employee_search_var = tk.StringVar()
-        search_entry = tk.Entry(search_frame, textvariable=self.employee_search_var, width=20, font=('Segoe UI', 10), bg='#F5F5F7', fg='#1D1D1F')
-        search_entry.pack(side=tk.LEFT)
-        self.create_button(search_frame, "🔍 搜索", "#007AFF", self.search_employee)
+        tk.Label(search_frame, text="🔍",
+                bg='#FFFFFF',
+                fg='#86868B',
+                font=('Segoe UI', 10)).pack(side=tk.LEFT, padx=5)
         
+        self.employee_search_var = tk.StringVar()
+        search_entry = tk.Entry(search_frame,
+                             textvariable=self.employee_search_var,
+                             width=20,
+                             font=('Segoe UI', 10),
+                             bg='#F5F5F7',
+                             fg='#1D1D1F',
+                             relief='flat')
+        search_entry.pack(side=tk.LEFT, padx=5)
+        tk.Button(search_frame, text="搜索", command=self.search_employee, bg='#007AFF', fg='white', borderwidth=0, font=('Segoe UI', 10)).pack(side=tk.LEFT, padx=5)
+
         self.create_employee_table()
 
     def create_attendance_tab(self):
         toolbar = tk.Frame(self.attendance_tab, bg='#FFFFFF')
-        toolbar.pack(fill=tk.X)
+        toolbar.pack(fill=tk.X, pady=15)
         
         btn_frame = tk.Frame(toolbar, bg='#FFFFFF')
         btn_frame.pack(side=tk.LEFT)
@@ -164,7 +143,7 @@ class PayrollSystemGUI:
 
     def create_performance_tab(self):
         toolbar = tk.Frame(self.performance_tab, bg='#FFFFFF')
-        toolbar.pack(fill=tk.X)
+        toolbar.pack(fill=tk.X, pady=15)
         
         btn_frame = tk.Frame(toolbar, bg='#FFFFFF')
         btn_frame.pack(side=tk.LEFT)
@@ -176,7 +155,7 @@ class PayrollSystemGUI:
 
     def create_payroll_tab(self):
         toolbar = tk.Frame(self.payroll_tab, bg='#FFFFFF')
-        toolbar.pack(fill=tk.X)
+        toolbar.pack(fill=tk.X, pady=15)
         
         btn_frame = tk.Frame(toolbar, bg='#FFFFFF')
         btn_frame.pack(side=tk.LEFT)
@@ -188,29 +167,31 @@ class PayrollSystemGUI:
 
     def create_ai_tab(self):
         toolbar = tk.Frame(self.ai_tab, bg='#FFFFFF')
-        toolbar.pack(fill=tk.X)
+        toolbar.pack(fill=tk.X, pady=15)
         
         tk.Label(toolbar, text="选择功能：", font=('Segoe UI', 10, 'bold'), bg='#FFFFFF', fg='#1D1D1F').pack(side=tk.LEFT, padx=10)
         
-        btn_frame = tk.Frame(toolbar, bg='#FFFFFF')
-        btn_frame.pack(side=tk.LEFT)
+        functions = [
+            ("📊 分析整体工资数据", self.analyze_overall),
+            ("💬 分析单个员工工资", self.analyze_employee),
+            ("📈 预测工资趋势", self.predict_trend),
+            ("✍️ 生成绩效评估报告", self.generate_performance_review)
+        ]
         
-        self.create_button(btn_frame, "📊 分析整体工资数据", "#007AFF", self.analyze_overall)
-        self.create_button(btn_frame, "💬 分析单个员工工资", "#F5F5F7", self.analyze_employee)
-        self.create_button(btn_frame, "📈 预测工资趋势", "#F5F5F7", self.predict_trend)
-        self.create_button(btn_frame, "✍️ 生成绩效评估报告", "#F5F5F7", self.generate_performance_review)
+        for text, command in functions:
+            self.create_button(toolbar, text, "#007AFF", command)
         
         ttk.Separator(self.ai_tab, orient='horizontal').pack(fill=tk.X, pady=10)
         
-        self.ai_output = tk.Text(self.ai_tab, height=20, width=100, wrap=tk.WORD, font=('Segoe UI', 10), bg='#FFFFFF', fg='#1D1D1F')
-        self.ai_output.pack(fill=tk.BOTH, expand=True, padx=20, pady=20)
+        self.ai_output = tk.Text(self.ai_tab, height=20, width=100, wrap=tk.WORD, padx=10, pady=10, font=('Segoe UI', 10), bg='#FFFFFF', fg='#1D1D1F')
+        self.ai_output.pack(fill=tk.BOTH, expand=True)
         
         scrollbar = ttk.Scrollbar(self.ai_tab, orient=tk.VERTICAL, command=self.ai_output.yview)
         self.ai_output.configure(yscrollcommand=scrollbar.set)
         scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
     def create_button(self, parent, text, bg_color, command):
-        """创建按钮"""
+        """创建按钮 - 标准参数"""
         btn = tk.Button(parent,
                        text=text,
                        command=command,
@@ -218,7 +199,7 @@ class PayrollSystemGUI:
                        fg='white' if bg_color == '#007AFF' else '#1D1D1F',
                        borderwidth=0,
                        padx=20,
-                       py=10,
+                       pady=10,
                        font=('Segoe UI', 10))
         btn.pack(side=tk.LEFT, padx=5)
         return btn
@@ -290,7 +271,7 @@ class PayrollSystemGUI:
     def add_employee_dialog(self):
         dialog = tk.Toplevel(self.root)
         dialog.title("添加员工 - 工资核算系统")
-        dialog.geometry("400x500")
+        dialog.geometry("450x500")
         dialog.configure(bg='#FFFFFF')
         dialog.transient(self.root)
         dialog.grab_set()
@@ -322,14 +303,10 @@ class PayrollSystemGUI:
                    font=('Segoe UI', 10),
                    bg='#FFFFFF',
                    fg='#86868B').grid(row=i, column=0, padx=(0, 15), pady=10, sticky='w')
-            
             entry = tk.Entry(main_frame,
                          font=('Segoe UI', 10),
                          bg='#F5F5F7',
-                         fg='#1D1D1F',
-                         relief='flat',
-                         padx=15,
-                         py=8)
+                         fg='#1D1D1F')
             entry.insert(0, default)
             entry.grid(row=i, column=1, padx=(0, 0), pady=10, sticky='ew')
             entries[label] = entry
@@ -337,19 +314,48 @@ class PayrollSystemGUI:
         button_frame = tk.Frame(main_frame, bg='#FFFFFF')
         button_frame.grid(row=len(fields), column=0, columnspan=2, pady=30)
 
-        save_btn = tk.Button(button_frame, text="保存", command=dialog.destroy,
-                          bg='#007AFF',
-                          fg='white',
-                          borderwidth=0,
-                          padx=30,
-                          py=12,
-                          font=('Segoe UI', 10))
-        save_btn.pack(side=tk.RIGHT, padx=10)
+        save_btn = tk.Button(button_frame, text="保存", command=self.save_employee, dialog=dialog, entries=entries, bg='#007AFF', fg='white', borderwidth=0, font=('Segoe UI', 10))
+        save_btn.pack(side=tk.RIGHT)
+
+    def save_employee(self, dialog, entries):
+        try:
+            employee_data = {
+                'employee_id': entries['员工工号'].get().strip(),
+                'name': entries['姓名'].get().strip(),
+                'department': entries['部门'].get().strip(),
+                'position': entries['职位'].get().strip(),
+                'basic_salary': float(entries['基本工资'].get()),
+                'base_social_rate': float(entries['社保比例 (0-1)'].get()),
+                'base_fund_rate': float(entries['公积金比例 (0-1)'].get()),
+                'base_medical_rate': float(entries['医保比例 (0-1)'].get()),
+                'unemployed_rate': float(entries['失业保险比例 (0-1)'].get()),
+                'entry_date': entries['入职日期'].get().strip()
+            }
+
+            if not employee_data['employee_id'] or not employee_data['name']:
+                messagebox.showerror("错误", "工号和姓名不能为空")
+                return
+
+            if self.db.add_employee(employee_data):
+                messagebox.showinfo("成功", "员工添加成功")
+                self.load_employee_data()
+                dialog.destroy()
+            else:
+                messagebox.showerror("错误", "员工添加失败，工号可能已存在")
+
+        except Exception as e:
+            messagebox.showerror("错误", f"输入格式错误: {str(e)}")
 
     def edit_employee_dialog(self):
         selected = self.employee_tree.selection()
         if not selected:
             messagebox.showwarning("提示", "请先选择一个员工")
+            return
+
+        employee_id = self.employee_tree.item(selected[0])['values'][0]
+        employee = self.db.get_employee(employee_id)
+
+        if not employee:
             return
 
         messagebox.showinfo("提示", "编辑功能即将推出")
@@ -367,6 +373,8 @@ class PayrollSystemGUI:
             if self.db.delete_employee(employee_id):
                 messagebox.showinfo("成功", "员工删除成功")
                 self.load_employee_data()
+            else:
+                messagebox.showerror("错误", "员工删除失败")
 
     def search_employee(self):
         keyword = self.employee_search_var.get().strip().lower()
@@ -392,7 +400,11 @@ class PayrollSystemGUI:
                 ))
 
     def export_employee_list(self):
-        messagebox.showinfo("提示", "导出功能即将推出")
+        result = self.excel_handler.export_employee_list()
+        if result['success']:
+            messagebox.showinfo("成功", f"{result['message']}\n文件路径: {result['file_path']}")
+        else:
+            messagebox.showerror("错误", result['message'])
 
     # ==================== 考勤管理 ====================
 
@@ -422,7 +434,11 @@ class PayrollSystemGUI:
         messagebox.showinfo("提示", "导入功能即将推出")
 
     def generate_attendance_template(self):
-        messagebox.showinfo("提示", "模板生成功能即将推出")
+        result = self.excel_handler.generate_attendance_template()
+        if result['success']:
+            messagebox.showinfo("成功", f"{result['message']}\n文件路径: {result['file_path']}")
+        else:
+            messagebox.showerror("错误", result['message'])
 
     # ==================== 绩效管理 ====================
 
@@ -458,7 +474,11 @@ class PayrollSystemGUI:
         messagebox.showinfo("提示", "导入功能即将推出")
 
     def generate_performance_template(self):
-        messagebox.showinfo("提示", "模板生成功能即将推出")
+        result = self.excel_handler.generate_performance_template()
+        if result['success']:
+            messagebox.showinfo("成功", f"{result['message']}\n文件路径: {result['file_path']}")
+        else:
+            messagebox.showerror("错误", result['message'])
 
     # ==================== 工资核算 ====================
 
@@ -497,10 +517,29 @@ class PayrollSystemGUI:
             return
 
         if messagebox.askyesno("确认", f"确定要计算 {year}年{month}月 所有员工的工资吗？"):
-            messagebox.showinfo("提示", "计算功能即将推出")
+            success = 0
+            failed = 0
+            
+            for emp in employees:
+                if self.db.calculate_salary(emp['employee_id'], year, month):
+                    success += 1
+                else:
+                    failed += 1
+            
+            messagebox.showinfo("完成", f"工资计算完成\n成功: {success} 人\n失败: {failed} 人")
+
+        self.load_payroll_data()
 
     def export_payroll(self):
-        messagebox.showinfo("提示", "导出功能即将推出")
+        year = int(self.year_var.get())
+        month = int(self.month_var.get())
+
+        result = self.excel_handler.export_payroll_to_excel(year, month)
+
+        if result['success']:
+            messagebox.showinfo("成功", f"{result['message']}\n文件路径: {result['file_path']}")
+        else:
+            messagebox.showerror("错误", result['message'])
 
     def refresh_data(self):
         self.current_year = int(self.year_var.get())
