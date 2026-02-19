@@ -9,7 +9,7 @@ from ollama_analyzer import OllamaAnalyzer
 class PayrollSystemGUI:
     def __init__(self, root):
         self.root = root
-        self.root.title("工资核算系统")
+        self.root.title("Payroll Anytime")
         self.root.geometry("1200x700")
         self.db = PayrollDatabase()
         self.excel_handler = ExcelHandler(self.db)
