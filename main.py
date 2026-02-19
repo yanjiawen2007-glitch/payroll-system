@@ -562,7 +562,21 @@ class PayrollSystemGUI:
         self.root.update()
 
         result = self.ollama_analyzer.analyze_salary_data(year, month)
-        self.ai_output.insert(tk.END, result)
+        
+        # 显示调试信息
+        self.ai_output.insert(tk.END, f"\n【调试信息】\n")
+        self.ai_output.insert(tk.END, f"分析结果类型: {type(result)}\n")
+        self.ai_output.insert(tk.END, f"分析结果长度: {len(str(result))}\n")
+        self.ai_output.insert(tk.END, f"分析结果内容: {repr(str(result)[:200] if len(str(result)) > 200 else str(result))}\n")
+        self.ai_output.insert(tk.END, "-" * 50 + "\n\n")
+        
+        if not result:
+            self.ai_output.insert(tk.END, "⚠️ 未获取到分析结果\n")
+        elif "调用失败" in result:
+            self.ai_output.insert(tk.END, f"❌ {result}\n")
+        else:
+            self.ai_output.insert(tk.END, result)
+        
         self.ai_output.insert(tk.END, "\n" + "-" * 50 + "\n")
         self.ai_output.insert(tk.END, "✅ 分析完毕！\n")
         self.ai_output.see(tk.END)
