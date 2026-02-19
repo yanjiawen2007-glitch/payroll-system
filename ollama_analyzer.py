@@ -28,7 +28,7 @@ class OllamaAnalyzer:
                         'num_predict': 1500
                     }
                 },
-                timeout=60  # 增加超时时间到 60 秒
+                timeout=180  # 增加超时时间到 180 秒
             )
 
             if response.status_code == 200:
