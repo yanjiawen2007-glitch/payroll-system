@@ -4,41 +4,14 @@ from datetime import datetime
 from database import PayrollDatabase
 from excel_handler import ExcelHandler
 from ollama_analyzer import OllamaAnalyzer
-import platform
-
-
-class ModernStyle:
-    """Apple风格样式配置"""
-    
-    # 配色方案
-    COLORS = {
-        'bg_primary': '#FFFFFF',      # 主背景
-        'bg_secondary': '#F5F5F7',    # 次要背景
-        'bg_accent': '#E8E8ED',      # 强调背景
-        'text_primary': '#1D1D1F',   # 主文本
-        'text_secondary': '#86868B',  # 次要文本
-        'accent_blue': '#007AFF',      # 苹果蓝
-        'accent_green': '#34C759',    # 苹果绿
-        'accent_red': '#FF3B30',      # 苹果红
-        'border': '#E5E5EA',          # 边框
-        'shadow': 'rgba(0,0,0,0.1)',    # 阴影
-    }
-    
-    # 字体配置
-    FONTS = {
-        'title': ('SF Pro Display', -size, 'bold') if platform.system() == 'Darwin' else ('Segoe UI', 14, 'bold'),
-        'header': ('SF Pro Text', -size, 'semibold') if platform.system() == 'Darwin' else ('Segoe UI Semibold', 11, 'normal'),
-        'body': ('SF Pro Text', -size) if platform.system() == 'Darwin' else ('Segoe UI', 10, 'normal'),
-        'small': ('SF Pro Text', -size-1) if platform.system() == 'Darwin' else ('Segoe UI', 9, 'normal'),
-    }
 
 
 class PayrollSystemGUI:
     def __init__(self, root):
         self.root = root
         self.root.title("Payroll Anytime")
-        self.root.geometry("1400x800")
-        self.root.configure(bg=ModernStyle.COLORS['bg_primary'])
+        self.root.geometry("1400x850")
+        self.root.configure(bg='#FFFFFF')
         
         self.db = PayrollDatabase()
         self.excel_handler = ExcelHandler(self.db)
@@ -53,161 +26,107 @@ class PayrollSystemGUI:
         """配置Tk样式"""
         style = ttk.Style()
         
-        # 配置Notebook标签
+        style.theme_use('clam')
+        
         style.configure('TNotebook', 
-                      background=ModernStyle.COLORS['bg_primary'],
+                      background='#FFFFFF',
                       borderwidth=0)
         
         style.configure('TNotebook.Tab',
-                      background=ModernStyle.COLORS['bg_secondary'],
-                      foreground=ModernStyle.COLORS['text_secondary'],
-                      padding=[24, 12],
-                      font=ModernStyle.FONTS['body'])
+                      background='#F5F5F7',
+                      foreground='#1D1D1F',
+                      padding=[24, 12])
         
         style.map('TNotebook.Tab',
-                  background=[('selected', ModernStyle.COLORS['bg_primary'])],
-                  foreground=[('selected', ModernStyle.COLORS['accent_blue'])])
+                  background=[('selected', '#FFFFFF')],
+                  foreground=[('selected', '#007AFF')])
         
-        # 配置Treeview
         style.configure('Treeview',
-                      background=ModernStyle.COLORS['bg_primary'],
-                      foreground=ModernStyle.COLORS['text_primary'],
-                      font=ModernStyle.FONTS['body'],
+                      background='#FFFFFF',
+                      foreground='#1D1D1F',
                       rowheight=30,
+                      fieldbackground='#FFFFFF',
                       borderwidth=0)
         
         style.configure('Treeview.Heading',
-                      background=ModernStyle.COLORS['bg_secondary'],
-                      foreground=ModernStyle.COLORS['text_primary'],
-                      font=ModernStyle.FONTS['header'])
+                      background='#F5F5F7',
+                      foreground='#1D1D1F')
         
-        # 配置Button
         style.configure('Modern.TButton',
-                      background=ModernStyle.COLORS['accent_blue'],
+                      background='#007AFF',
                       foreground='white',
-                      borderwidth=0,
-                      padx=20,
-                      pady=10,
-                      font=ModernStyle.FONTS['body'])
+                      borderwidth=0)
         
         style.map('Modern.TButton',
-                  background=[('active', '#0063D1')])
-        
-        # 配置Secondary.TButton
-        style.configure('Secondary.TButton',
-                      background=ModernStyle.COLORS['bg_secondary'],
-                      foreground=ModernStyle.COLORS['text_primary'],
-                      borderwidth=0,
-                      padx=20,
-                      pady=10,
-                      font=ModernStyle.FONTS['body'])
-        
-        style.map('Secondary.TButton',
-                  background=[('active', ModernStyle.COLORS['bg_accent'])])
-        
-        # 配置Frame
-        style.configure('Card.TFrame',
-                      background=ModernStyle.COLORS['bg_primary'],
-                      relief='flat')
+                  background=[('active', '#0056B3')])
 
     def create_main_interface(self):
-        """创建主界面 - Apple风格"""
-        # 顶部导航栏
-        self.create_navbar()
-        
-        # 主内容区域
-        main_container = ttk.Frame(self.root, style='Card.TFrame')
-        main_container.pack(fill=tk.BOTH, expand=True, padx=30, pady=20)
-        
-        # 创建标签
-        self.create_notebook(main_container)
-
-    def create_navbar(self):
-        """创建导航栏"""
-        navbar = tk.Frame(self.root, bg=ModernStyle.COLORS['bg_primary'], height=60)
+        navbar = tk.Frame(self.root, bg='#FFFFFF', height=60)
         navbar.pack(fill=tk.X)
         navbar.pack_propagate(False)
         
-        # Logo/标题
-        title_frame = tk.Frame(navbar, bg=ModernStyle.COLORS['bg_primary'])
+        title_frame = tk.Frame(navbar, bg='#FFFFFF')
         title_frame.pack(side=tk.LEFT, padx=30, pady=15)
         
         title_label = tk.Label(title_frame, 
                               text="Payroll Anytime",
-                              font=ModernStyle.FONTS['title'],
-                              bg=ModernStyle.COLORS['bg_primary'],
-                              fg=ModernStyle.COLORS['text_primary'])
+                              font=('Segoe UI', 14, 'bold'),
+                              bg='#FFFFFF',
+                              fg='#1D1D1F')
         title_label.pack()
         
         subtitle_label = tk.Label(title_frame,
                                 text="Simple • Intuitive • Powerful",
-                                font=ModernStyle.FONTS['small'],
-                                bg=ModernStyle.COLORS['bg_primary'],
-                                fg=ModernStyle.COLORS['text_secondary'])
+                                font=('Segoe UI', 9),
+                                bg='#FFFFFF',
+                                fg='#86868B')
         subtitle_label.pack()
 
-        # 年月选择器
-        date_selector = tk.Frame(navbar, bg=ModernStyle.COLORS['bg_primary'])
+        date_selector = tk.Frame(navbar, bg='#FFFFFF')
         date_selector.pack(side=tk.LEFT, padx=40, pady=15)
         
         tk.Label(date_selector, text="Year", 
-                font=ModernStyle.FONTS['body'],
-                bg=ModernStyle.COLORS['bg_primary'],
-                fg=ModernStyle.COLORS['text_secondary']).pack(side=tk.LEFT, padx=5)
+                font=('Segoe UI', 10),
+                bg='#FFFFFF',
+                fg='#86868B').pack(side=tk.LEFT, padx=5)
         
         self.year_var = tk.StringVar(value=str(self.current_year))
-        year_spinbox = ttk.Spinbox(date_selector, 
-                                    from_=2020, 
-                                    to=2030, 
-                                    textvariable=self.year_var,
-                                    width=10,
-                                    font=ModernStyle.FONTS['body'])
+        year_spinbox = ttk.Spinbox(date_selector, from_=2020, to=2030, textvariable=self.year_var, width=10)
         year_spinbox.pack(side=tk.LEFT, padx=5)
         
         tk.Label(date_selector, text="Month",
-                font=ModernStyle.FONTS['body'],
-                bg=ModernStyle.COLORS['bg_primary'],
-                fg=ModernStyle.COLORS['text_secondary']).pack(side=tk.LEFT, padx=5)
+                font=('Segoe UI', 10),
+                bg='#FFFFFF',
+                fg='#86868B').pack(side=tk.LEFT, padx=5)
         
         self.month_var = tk.StringVar(value=str(self.current_month))
-        month_spinbox = ttk.Spinbox(date_selector,
-                                     from_=1,
-                                     to=12,
-                                     textvariable=self.month_var,
-                                     width=8,
-                                     font=ModernStyle.FONTS['body'])
+        month_spinbox = ttk.Spinbox(date_selector, from_=1, to=12, textvariable=self.month_var, width=8)
         month_spinbox.pack(side=tk.LEFT, padx=5)
         
-        # 刷新按钮
         refresh_btn = tk.Button(navbar,
-                              text="↻ Refresh",
+                              text="Refresh",
                               command=self.refresh_data,
-                              bg=ModernStyle.COLORS['bg_secondary'],
-                              fg=ModernStyle.COLORS['text_primary'],
+                              bg='#F5F5F7',
+                              fg='#1D1D1F',
                               borderwidth=0,
-                              padx=20,
-                              pady=8,
-                              font=ModernStyle.FONTS['body'],
+                              font=('Segoe UI', 10),
                               cursor='hand2')
         refresh_btn.pack(side=tk.RIGHT, padx=30, pady=15)
 
-    def create_notebook(self, parent):
-        """创建标签页"""
-        notebook = ttk.Notebook(parent)
+        notebook = ttk.Notebook(self.root)
         notebook.pack(fill=tk.BOTH, expand=True)
         
-        # 创建各个标签页
         self.employee_tab = ttk.Frame(notebook)
         self.attendance_tab = ttk.Frame(notebook)
         self.performance_tab = ttk.Frame(notebook)
         self.payroll_tab = ttk.Frame(notebook)
         self.ai_tab = ttk.Frame(notebook)
         
-        notebook.add(self.employee_tab, text="  👥 员工  ")
-        notebook.add(self.attendance_tab, text="  📅 考勤  ")
-        notebook.add(self.performance_tab, text="  ⭐ 绩效  ")
-        notebook.add(self.payroll_tab, text="  💰 工资  ")
-        notebook.add(self.ai_tab, text="  🤖 AI  ")
+        notebook.add(self.employee_tab, text="  👥 Employees  ")
+        notebook.add(self.attendance_tab, text="  📅 Attendance  ")
+        notebook.add(self.performance_tab, text="  ⭐ Performance  ")
+        notebook.add(self.payroll_tab, text="  💰 Payroll  ")
+        notebook.add(self.ai_tab, text="  🤖 AI Analysis  ")
         
         self.create_employee_tab()
         self.create_attendance_tab()
@@ -216,188 +135,167 @@ class PayrollSystemGUI:
         self.create_ai_tab()
 
     def create_employee_tab(self):
-        """员工管理标签页 - 简洁风格"""
-        # 工具栏
-        toolbar = tk.Frame(self.employee_tab, bg=ModernStyle.COLORS['bg_primary'])
-        toolbar.pack(fill=tk.X, pady=15)
+        toolbar = tk.Frame(self.employee_tab, bg='#FFFFFF')
+        toolbar.pack(fill=tk.X)
         
-        # 主要按钮组
-        btn_frame = tk.Frame(toolbar, bg=ModernStyle.COLORS['bg_primary'])
+        btn_frame = tk.Frame(toolbar, bg='#FFFFFF')
         btn_frame.pack(side=tk.LEFT)
         
-        self.create_modern_button(btn_frame, "+ Add", "modern", self.add_employee_dialog)
-        self.create_modern_button(btn_frame, "✏️ Edit", "secondary", self.edit_employee_dialog)
-        self.create_modern_button(btn_frame, "🗑️ Delete", "secondary", self.delete_employee)
-        self.create_modern_button(btn_frame, "📤 Export", "secondary", self.export_employee_list)
+        self.create_button(btn_frame, " Add", "#007AFF", self.add_employee_dialog)
+        self.create_button(btn_frame, " Edit", "#F5F5F7", self.edit_employee_dialog)
+        self.create_button(btn_frame, " Delete", "#F5F5F7", self.delete_employee)
+        self.create_button(btn_frame, " Export", "#F5F5F7", self.export_employee_list)
         
-        # 搜索框
-        search_frame = tk.Frame(toolbar, bg=ModernStyle.COLORS['bg_primary'])
+        search_frame = tk.Frame(toolbar, bg='#FFFFFF')
         search_frame.pack(side=tk.RIGHT, padx=20)
         
-        tk.Label(search_frame, text="🔍",
-                bg=ModernStyle.COLORS['bg_primary'],
-                fg=ModernStyle.COLORS['text_secondary'],
-                font=ModernStyle.FONTS['body']).pack(side=tk.LEFT, padx=5)
-        
         self.employee_search_var = tk.StringVar()
-        search_entry = tk.Entry(search_frame,
-                             textvariable=self.employee_search_var,
-                             font=ModernStyle.FONTS['body'],
-                             relief='flat',
-                             bg=ModernStyle.COLORS['bg_secondary'],
-                             fg=ModernStyle.COLORS['text_primary'],
-                             width=25,
-                             padx=12,
-                             pady=8)
-        search_entry.pack(side=tk.LEFT)
+        search_entry = tk.Entry(search_frame, textvariable=self.employee_search_var, width=20, font=('Segoe UI', 10), bg='#F5F5F7', fg='#1D1D1F', relief='flat', insertbackground='white')
+        search_entry.pack(side=tk.LEFT, padx=5)
         
-        # 数据表格
+        tk.Button(search_frame, text="Search", command=self.search_employee, bg='#007AFF', fg='white', borderwidth=0, font=('Segoe UI', 10), cursor='hand2').pack(side=tk.LEFT)
+
         self.create_employee_table()
 
     def create_attendance_tab(self):
-        """考勤管理标签页"""
-        toolbar = tk.Frame(self.attendance_tab, bg=ModernStyle.COLORS['bg_primary'])
-        toolbar.pack(fill=tk.X, pady=15)
+        toolbar = tk.Frame(self.attendance_tab, bg='#FFFFFF')
+        toolbar.pack(fill=tk.X)
         
-        btn_frame = tk.Frame(toolbar, bg=ModernStyle.COLORS['bg_primary'])
+        btn_frame = tk.Frame(toolbar, bg='#FFFFFF')
         btn_frame.pack(side=tk.LEFT)
         
-        self.create_modern_button(btn_frame, "📥 Import", "modern", self.import_attendance)
-        self.create_modern_button(btn_frame, "📋 Template", "secondary", self.generate_attendance_template)
+        self.create_button(btn_frame, " Import", "#007AFF", self.import_attendance)
+        self.create_button(btn_frame, " Template", "#F5F5F7", self.generate_attendance_template)
         
         self.create_attendance_table()
 
     def create_performance_tab(self):
-        """绩效管理标签页"""
-        toolbar = tk.Frame(self.performance_tab, bg=ModernStyle.COLORS['bg_primary'])
-        toolbar.pack(fill=tk.X, pady=15)
+        toolbar = tk.Frame(self.performance_tab, bg='#FFFFFF')
+        toolbar.pack(fill=tk.X)
         
-        btn_frame = tk.Frame(toolbar, bg=ModernStyle.COLORS['bg_primary'])
+        btn_frame = tk.Frame(toolbar, bg='#FFFFFF')
         btn_frame.pack(side=tk.LEFT)
         
-        self.create_modern_button(btn_frame, "📥 Import", "modern", self.import_performance)
-        self.create_modern_button(btn_frame, "📋 Template", "secondary", self.generate_performance_template)
+        self.create_button(btn_frame, " Import", "#007AFF", self.import_performance)
+        self.create_button(btn_frame, " Template", "#F5F5F7", self.generate_performance_template)
         
         self.create_performance_table()
 
     def create_payroll_tab(self):
-        """工资核算标签页"""
-        toolbar = tk.Frame(self.payroll_tab, bg=ModernStyle.COLORS['bg_primary'])
-        toolbar.pack(fill=tk.X, pady=15)
+        toolbar = tk.Frame(self.payroll_tab, bg='#FFFFFF')
+        toolbar.pack(fill=tk.X)
         
-        btn_frame = tk.Frame(toolbar, bg=ModernStyle.COLORS['bg_primary'])
+        btn_frame = tk.Frame(toolbar, bg='#FFFFFF')
         btn_frame.pack(side=tk.LEFT)
         
-        self.create_modern_button(btn_frame, "🧮 Calculate", "modern", self.calculate_all_salaries)
-        self.create_modern_button(btn_frame, "📤 Export", "secondary", self.export_payroll)
+        self.create_button(btn_frame, " Calculate", "#007AFF", self.calculate_all_salaries)
+        self.create_button(btn_frame, " Export", "#F5F5F7", self.export_payroll)
         
         self.create_payroll_table()
 
     def create_ai_tab(self):
-        """AI分析标签页"""
-        toolbar = tk.Frame(self.ai_tab, bg=ModernStyle.COLORS['bg_primary'])
-        toolbar.pack(fill=tk.X, pady=15)
+        toolbar = tk.Frame(self.ai_tab, bg='#FFFFFF')
+        toolbar.pack(fill=tk.X)
         
-        btn_frame = tk.Frame(toolbar, bg=ModernStyle.COLORS['bg_primary'])
-        btn_frame.pack(side=tk.LEFT)
+        tk.Label(toolbar, text="Select Analysis:", font=('Segoe UI', 10, 'bold'), bg='#FFFFFF', fg='#1D1D1F').pack(side=tk.LEFT, padx=10)
         
-        self.create_modern_button(btn_frame, "📊 Analysis", "modern", self.analyze_overall)
-        self.create_modern_button(btn_frame, "💬 Employee", "secondary", self.analyze_employee)
-        self.create_modern_button(btn_frame, "📈 Trend", "secondary", self.predict_trend)
-        self.create_modern_button(btn_frame, "✍️ Review", "secondary", self.generate_performance_review)
+        functions = [
+            (" Overall Analysis", self.analyze_overall),
+            (" Employee Analysis", self.analyze_employee),
+            (" Trend Prediction", self.predict_trend),
+            (" Performance Review", self.generate_performance_review)
+        ]
         
-        # AI输出区域
-        output_frame = tk.Frame(self.ai_tab, bg=ModernStyle.COLORS['bg_secondary'])
-        output_frame.pack(fill=tk.BOTH, expand=True, pady=15)
+        for text, command in functions:
+            self.create_button(toolbar, text, "#007AFF", command)
         
-        self.ai_output = tk.Text(output_frame,
-                               wrap=tk.WORD,
-                               padx=20,
-                               pady=20,
-                               font=ModernStyle.FONTS['body'],
-                               bg=ModernStyle.COLORS['bg_primary'],
-                               fg=ModernStyle.COLORS['text_primary'],
-                               relief='flat',
-                               borderwidth=0)
-        self.ai_output.pack(fill=tk.BOTH, expand=True)
+        ttk.Separator(self.ai_tab, orient='horizontal').pack(fill=tk.X, pady=10)
         
-        scrollbar = ttk.Scrollbar(output_frame, orient=tk.VERTICAL, command=self.ai_output.yview)
+        self.ai_output = tk.Text(self.ai_tab, height=20, width=100, wrap=tk.WORD, font=('Segoe UI', 10), bg='#F5F5F7', fg='#1D1D1F')
+        self.ai_output.pack(fill=tk.BOTH, expand=True, padx=20, pady=20)
+        
+        scrollbar = ttk.Scrollbar(self.ai_tab, orient=tk.VERTICAL, command=self.ai_output.yview)
         self.ai_output.configure(yscrollcommand=scrollbar.set)
         scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
-    def create_modern_button(self, parent, text, style_type, command):
-        """创建现代风格按钮"""
-        if style_type == "modern":
-            bg = ModernStyle.COLORS['accent_blue']
-            fg = 'white'
-        else:
-            bg = ModernStyle.COLORS['bg_secondary']
-            fg = ModernStyle.COLORS['text_primary']
-        
+    def create_button(self, parent, text, bg_color, command):
+        """创建按钮 - 不使用 padx/pady"""
         btn = tk.Button(parent,
                        text=text,
                        command=command,
-                       bg=bg,
-                       fg=fg,
+                       bg=bg_color,
+                       fg='white',
                        borderwidth=0,
-                       padx=20,
-                       pady=10,
-                       font=ModernStyle.FONTS['body'],
+                       font=('Segoe UI', 10),
                        cursor='hand2',
                        relief='flat')
         btn.pack(side=tk.LEFT, padx=5)
         return btn
 
     def create_employee_table(self):
-        """创建员工数据表格"""
-        columns = ('工号', '姓名', '部门', '职位', '基本工资', '入职日期', '状态')
-        self.employee_tree = ttk.Treeview(self.employee_tab, columns=columns, show='headings', style='Treeview')
+        columns = ('ID', 'Name', 'Dept', 'Position', 'Salary', 'Date', 'Status')
+        self.employee_tree = ttk.Treeview(self.employee_tab, columns=columns, show='headings')
         
         for col in columns:
             self.employee_tree.heading(col, text=col)
             self.employee_tree.column(col, width=120, anchor='w')
         
-        self.employee_tree.pack(fill=tk.BOTH, expand=True, padx=15, pady=10)
+        scrollbar = ttk.Scrollbar(self.employee_tab, orient=tk.VERTICAL, command=self.employee_tree.yview)
+        self.employee_tree.configure(yscrollcommand=scrollbar.set)
+
+        self.employee_tree.pack(fill=tk.BOTH, expand=True)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
         self.load_employee_data()
 
     def create_attendance_table(self):
-        """创建考勤数据表格"""
-        columns = ('工号', '姓名', '部门', '工作天数', '迟到天数', '请假天数', '加班小时')
-        self.attendance_tree = ttk.Treeview(self.attendance_tab, columns=columns, show='headings', style='Treeview')
+        columns = ('ID', 'Name', 'Dept', 'Days', 'Late', 'Leave', 'Overtime')
+        self.attendance_tree = ttk.Treeview(self.attendance_tab, columns=columns, show='headings')
         
         for col in columns:
             self.attendance_tree.heading(col, text=col)
             self.attendance_tree.column(col, width=100, anchor='w')
         
-        self.attendance_tree.pack(fill=tk.BOTH, expand=True, padx=15, pady=10)
+        scrollbar = ttk.Scrollbar(self.attendance_tab, orient=tk.VERTICAL, command=self.attendance_tree.yview)
+        self.attendance_tree.configure(yscrollcommand=scrollbar.set)
+
+        self.attendance_tree.pack(fill=tk.BOTH, expand=True)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
         self.load_attendance_data()
 
     def create_performance_table(self):
-        """创建绩效数据表格"""
-        columns = ('工号', '姓名', '绩效分数', '绩效等级', '奖金公式')
-        self.performance_tree = ttk.Treeview(self.performance_tab, columns=columns, show='headings', style='Treeview')
+        columns = ('ID', 'Name', 'Score', 'Grade', 'Formula')
+        self.performance_tree = ttk.Treeview(self.performance_tab, columns=columns, show='headings')
         
         for col in columns:
             self.performance_tree.heading(col, text=col)
             self.performance_tree.column(col, width=140, anchor='w')
         
-        self.performance_tree.pack(fill=tk.BOTH, expand=True, padx=15, pady=10)
+        scrollbar = ttk.Scrollbar(self.performance_tab, orient=tk.VERTICAL, command=self.performance_tree.yview)
+        self.performance_tree.configure(yscrollcommand=scrollbar.set)
+
+        self.performance_tree.pack(fill=tk.BOTH, expand=True)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
         self.load_performance_data()
 
     def create_payroll_table(self):
-        """创建工资数据表格"""
-        columns = ('工号', '姓名', '部门', '基本工资', '出勤工资', '绩效奖金',
-                  '社保扣款', '公积金扣款', '总扣款', '应发工资', '实发工资')
-        self.payroll_tree = ttk.Treeview(self.payroll_tab, columns=columns, show='headings', style='Treeview')
+        columns = ('ID', 'Name', 'Dept', 'Base', 'Attend', 'Bonus',
+                  'Social', 'Fund', 'Total', 'Gross', 'Net')
+        self.payroll_tree = ttk.Treeview(self.payroll_tab, columns=columns, show='headings')
         
         for col in columns:
             self.payroll_tree.heading(col, text=col)
             self.payroll_tree.column(col, width=100, anchor='w')
         
-        self.payroll_tree.pack(fill=tk.BOTH, expand=True, padx=15, pady=10)
-        self.load_payroll_data()
+        scrollbar = ttk.Scrollbar(self.payroll_tab, orient=tk.VERTICAL, command=self.payroll_tree.yview)
+        self.payroll_tree.configure(yscrollcommand=scrollbar.set)
 
-    # ==================== 员工管理 ====================
+        self.payroll_tree.pack(fill=tk.BOTH, expand=True)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
+        self.load_payroll_data()
 
     def load_employee_data(self):
         for item in self.employee_tree.get_children():
@@ -416,21 +314,92 @@ class PayrollSystemGUI:
                 emp['status']
             ))
 
+    def load_attendance_data(self):
+        for item in self.attendance_tree.get_children():
+            self.attendance_tree.delete(item)
+
+        year = int(self.year_var.get())
+        month = int(self.month_var.get())
+
+        attendance_records = self.db.get_all_attendance(year, month)
+
+        for record in attendance_records:
+            employee = self.db.get_employee(record['employee_id'])
+            if employee:
+                self.attendance_tree.insert('', tk.END, values=(
+                    record['employee_id'],
+                    employee['name'],
+                    employee['department'],
+                    record['work_days'],
+                    record['late_days'],
+                    record['leave_days'],
+                    record['overtime_hours']
+                ))
+
+    def load_performance_data(self):
+        for item in self.performance_tree.get_children():
+            self.performance_tree.delete(item)
+
+        year = int(self.year_var.get())
+        month = int(self.month_var.get())
+
+        employees = self.db.get_all_employees()
+
+        for emp in employees:
+            performance = self.db.get_performance(emp['employee_id'], year, month)
+            if performance:
+                self.performance_tree.insert('', tk.END, values=(
+                    emp['employee_id'],
+                    emp['name'],
+                    performance['score'],
+                    performance['grade'],
+                    performance['bonus_formula']
+                ))
+            else:
+                self.performance_tree.insert('', tk.END, values=(
+                    emp['employee_id'],
+                    emp['name'],
+                    '',
+                    '',
+                    ''
+                ))
+
+    def load_payroll_data(self):
+        for item in self.payroll_tree.get_children():
+            self.payroll_tree.delete(item)
+
+        year = int(self.year_var.get())
+        month = int(self.month_var.get())
+
+        payroll_records = self.db.get_payroll(year, month)
+
+        for record in payroll_records:
+            self.payroll_tree.insert('', tk.END, values=(
+                record['employee_id'],
+                record['name'],
+                record['department'],
+                f"{record['basic_salary']:.2f}",
+                f"{record['attendance_salary']:.2f}",
+                f"{record['performance_bonus']:.2f}",
+                f"{record['social_deduction']:.2f}",
+                f"{record['fund_deduction']:.2f}",
+                f"{record['total_deduction']:.2f}",
+                f"{record['gross_salary']:.2f}",
+                f"{record['net_salary']:.2f}"
+            ))
+
     def add_employee_dialog(self):
         dialog = tk.Toplevel(self.root)
         dialog.title("Add Employee - Payroll Anytime")
-        dialog.geometry("450x550")
-        dialog.configure(bg=ModernStyle.COLORS['bg_primary'])
+        dialog.geometry("400x500")
+        dialog.configure(bg='#FFFFFF')
         dialog.transient(self.root)
         dialog.grab_set()
 
-        main_frame = tk.Frame(dialog, bg=ModernStyle.COLORS['bg_primary'])
+        main_frame = tk.Frame(dialog, bg='#FFFFFF')
         main_frame.pack(fill=tk.BOTH, expand=True, padx=30, pady=30)
 
-        tk.Label(main_frame, text="Add New Employee",
-                font=ModernStyle.FONTS['header'],
-                bg=ModernStyle.COLORS['bg_primary'],
-                fg=ModernStyle.COLORS['text_primary']).pack(pady=(0, 20))
+        tk.Label(main_frame, text="Add New Employee", font=('Segoe UI', 12, 'bold'), bg='#FFFFFF', fg='#1D1D1F').pack(pady=(0, 20))
 
         fields = [
             ('Employee ID', ''),
@@ -447,53 +416,54 @@ class PayrollSystemGUI:
 
         entries = {}
         for i, (label, default) in enumerate(fields):
-            tk.Label(main_frame, text=label,
-                   font=ModernStyle.FONTS['body'],
-                   bg=ModernStyle.COLORS['bg_primary'],
-                   fg=ModernStyle.COLORS['text_secondary']).grid(
-                       row=i, column=0, padx=(0, 15), pady=10, sticky='w')
-            
-            entry = tk.Entry(main_frame,
-                         font=ModernStyle.FONTS['body'],
-                         bg=ModernStyle.COLORS['bg_secondary'],
-                         fg=ModernStyle.COLORS['text_primary'],
-                         relief='flat',
-                         borderwidth=0,
-                         padx=15,
-                         pady=8)
+            tk.Label(main_frame, text=label, bg='#FFFFFF', fg='#86868B', font=('Segoe UI', 10)).grid(row=i, column=0, sticky='w')
+            entry = tk.Entry(main_frame, font=('Segoe UI', 10), bg='#F5F5F7', fg='#1D1D1F', relief='flat', insertbackground='white')
             entry.insert(0, default)
-            entry.grid(row=i, column=1, padx=(0, 0), pady=10, sticky='ew')
+            entry.grid(row=i, column=1, sticky='ew')
             entries[label] = entry
 
-        button_frame = tk.Frame(main_frame, bg=ModernStyle.COLORS['bg_primary'])
-        button_frame.grid(row=len(fields), column=0, columnspan=2, pady=30, sticky='ew')
+        button_frame = tk.Frame(main_frame, bg='#FFFFFF')
+        button_frame.grid(row=len(fields), column=0, columnspan=2, pady=30)
 
-        save_btn = tk.Button(button_frame, text="Save Employee", command=dialog.destroy,
-                          bg=ModernStyle.COLORS['accent_blue'],
-                          fg='white',
-                          borderwidth=0,
-                          padx=30,
-                          pady=12,
-                          font=ModernStyle.FONTS['body'],
-                          cursor='hand2',
-                          relief='flat')
-        save_btn.pack(side=tk.RIGHT, padx=10)
+        save_btn = tk.Button(button_frame, text="Save Employee", command=self.save_employee, dialog=dialog, entries=entries, bg='#007AFF', fg='white', borderwidth=0, font=('Segoe UI', 10), cursor='hand2', relief='flat')
+        save_btn.pack(side=tk.RIGHT)
 
-        cancel_btn = tk.Button(button_frame, text="Cancel", command=dialog.destroy,
-                           bg=ModernStyle.COLORS['bg_secondary'],
-                           fg=ModernStyle.COLORS['text_primary'],
-                           borderwidth=0,
-                           padx=30,
-                           py=12,
-                           font=ModernStyle.FONTS['body'],
-                           cursor='hand2',
-                           relief='flat')
-        cancel_btn.pack(side=tk.RIGHT)
+        cancel_btn = tk.Button(button_frame, text="Cancel", command=dialog.destroy, bg='#F5F5F7', fg='#1D1D1F', borderwidth=0, font=('Segoe UI', 10), cursor='hand2', relief='flat')
+        cancel_btn.pack(side=tk.RIGHT, padx=10)
+
+    def save_employee(self, dialog, entries):
+        try:
+            employee_data = {
+                'employee_id': entries['Employee ID'].get().strip(),
+                'name': entries['Name'].get().strip(),
+                'department': entries['Department'].get().strip(),
+                'position': entries['Position'].get().strip(),
+                'basic_salary': float(entries['Base Salary'].get()),
+                'base_social_rate': float(entries['Social Rate (0-1)'].get()),
+                'base_fund_rate': float(entries['Housing Fund Rate (0-1)'].get()),
+                'base_medical_rate': float(entries['Medical Rate (0-1)'].get()),
+                'unemployed_rate': float(entries['Unemployment Rate (0-1)'].get()),
+                'entry_date': entries['Entry Date'].get().strip()
+            }
+
+            if not employee_data['employee_id'] or not employee_data['name']:
+                messagebox.showerror("Error", "ID and Name are required")
+                return
+
+            if self.db.add_employee(employee_data):
+                messagebox.showinfo("Success", "Employee added successfully")
+                self.load_employee_data()
+                dialog.destroy()
+            else:
+                messagebox.showerror("Error", "Failed to add employee")
+
+        except Exception as e:
+            messagebox.showerror("Error", f"Invalid input: {str(e)}")
 
     def edit_employee_dialog(self):
         selected = self.employee_tree.selection()
         if not selected:
-            messagebox.showinfo("Info", "Please select an employee")
+            messagebox.showwarning("Warning", "Please select an employee")
             return
 
         messagebox.showinfo("Info", "Edit feature coming soon")
@@ -501,7 +471,7 @@ class PayrollSystemGUI:
     def delete_employee(self):
         selected = self.employee_tree.selection()
         if not selected:
-            messagebox.showinfo("Info", "Please select an employee")
+            messagebox.showwarning("Warning", "Please select an employee")
             return
 
         employee_id = self.employee_tree.item(selected[0])['values'][0]
@@ -509,8 +479,10 @@ class PayrollSystemGUI:
 
         if messagebox.askyesno("Confirm", f"Delete {employee_name}?"):
             if self.db.delete_employee(employee_id):
-                messagebox.showinfo("Success", "Employee deleted")
+                messagebox.showinfo("Success", "Employee deleted successfully")
                 self.load_employee_data()
+            else:
+                messagebox.showerror("Error", "Failed to delete employee")
 
     def search_employee(self):
         keyword = self.employee_search_var.get().strip().lower()
@@ -542,30 +514,6 @@ class PayrollSystemGUI:
         else:
             messagebox.showerror("Error", result['message'])
 
-    # ==================== 考勤管理 ====================
-
-    def load_attendance_data(self):
-        for item in self.attendance_tree.get_children():
-            self.attendance_tree.delete(item)
-
-        year = int(self.year_var.get())
-        month = int(self.month_var.get())
-
-        attendance_records = self.db.get_all_attendance(year, month)
-
-        for record in attendance_records:
-            employee = self.db.get_employee(record['employee_id'])
-            if employee:
-                self.attendance_tree.insert('', tk.END, values=(
-                    record['employee_id'],
-                    employee['name'],
-                    employee['department'],
-                    record['work_days'],
-                    record['late_days'],
-                    record['leave_days'],
-                    record['overtime_hours']
-                ))
-
     def import_attendance(self):
         messagebox.showinfo("Info", "Import feature coming soon")
 
@@ -575,36 +523,6 @@ class PayrollSystemGUI:
             messagebox.showinfo("Success", f"{result['message']}\n{result['file_path']}")
         else:
             messagebox.showerror("Error", result['message'])
-
-    # ==================== 绩效管理 ====================
-
-    def load_performance_data(self):
-        for item in self.performance_tree.get_children():
-            self.performance_tree.delete(item)
-
-        year = int(self.year_var.get())
-        month = int(self.month_var.get())
-
-        employees = self.db.get_all_employees()
-
-        for emp in employees:
-            performance = self.db.get_performance(emp['employee_id'], year, month)
-            if performance:
-                self.performance_tree.insert('', tk.END, values=(
-                    emp['employee_id'],
-                    emp['name'],
-                    performance['score'],
-                    performance['grade'],
-                    performance['bonus_formula']
-                ))
-            else:
-                self.performance_tree.insert('', tk.END, values=(
-                    emp['employee_id'],
-                    emp['name'],
-                    '',
-                    '',
-                    ''
-                ))
 
     def import_performance(self):
         messagebox.showinfo("Info", "Import feature coming soon")
@@ -616,32 +534,6 @@ class PayrollSystemGUI:
         else:
             messagebox.showerror("Error", result['message'])
 
-    # ==================== 工资核算 ====================
-
-    def load_payroll_data(self):
-        for item in self.payroll_tree.get_children():
-            self.payroll_tree.delete(item)
-
-        year = int(self.year_var.get())
-        month = int(self.month_var.get())
-
-        payroll_records = self.db.get_payroll(year, month)
-
-        for record in payroll_records:
-            self.payroll_tree.insert('', tk.END, values=(
-                record['employee_id'],
-                record['name'],
-                record['department'],
-                f"{record['basic_salary']:.2f}",
-                f"{record['attendance_salary']:.2f}",
-                f"{record['performance_bonus']:.2f}",
-                f"{record['social_deduction']:.2f}",
-                f"{record['fund_deduction']:.2f}",
-                f"{record['total_deduction']:.2f}",
-                f"{record['gross_salary']:.2f}",
-                f"{record['net_salary']:.2f}"
-            ))
-
     def calculate_all_salaries(self):
         year = int(self.year_var.get())
         month = int(self.month_var.get())
@@ -649,7 +541,7 @@ class PayrollSystemGUI:
         employees = self.db.get_all_employees()
 
         if not employees:
-            messagebox.showinfo("Info", "No employees found")
+            messagebox.showwarning("Warning", "No employees found")
             return
 
         if messagebox.askyesno("Confirm", f"Calculate salaries for {year}/{month}?"):
@@ -684,9 +576,7 @@ class PayrollSystemGUI:
         self.load_attendance_data()
         self.load_performance_data()
         self.load_payroll_data()
-        messagebox.showinfo("Done", "Data refreshed")
-
-    # ==================== AI 分析 ====================
+        messagebox.showinfo("Info", "Data refreshed")
 
     def analyze_overall(self):
         year = int(self.year_var.get())
@@ -694,21 +584,22 @@ class PayrollSystemGUI:
 
         self.ai_output.delete(1.0, tk.END)
         self.ai_output.insert(tk.END, "Analyzing...\n")
-        self.ai_output.insert(tk.END, f"Year: {year}, Month: {month}\n\n")
+        self.ai_output.insert(tk.END, f"Year: {year}, Month: {month}\n")
+        self.ai_output.insert(tk.END, "-" * 50 + "\n")
         self.root.update()
 
         result = self.ollama_analyzer.analyze_salary_data(year, month)
-        
-        self.ai_output.insert(tk.END, "\n" + "─" * 50 + "\n")
+
+        self.ai_output.insert(tk.END, "\n" + "-" * 50 + "\n")
         if not result:
             self.ai_output.insert(tk.END, "No data received\n")
         elif "failed" in result.lower():
             self.ai_output.insert(tk.END, f"Error: {result}\n")
         else:
             self.ai_output.insert(tk.END, result + "\n")
-        
-        self.ai_output.insert(tk.END, "─" * 50 + "\n")
-        self.ai_output.insert(tk.END, "✓ Done\n")
+
+        self.ai_output.insert(tk.END, "-" * 50 + "\n")
+        self.ai_output.insert(tk.END, "Done\n")
         self.ai_output.see(tk.END)
 
     def analyze_employee(self):
