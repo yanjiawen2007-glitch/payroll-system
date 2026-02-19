@@ -1,5 +1,5 @@
 @echo off
-title Payroll System
+title Payroll System Launcher
 setlocal EnableDelayedExpansion
 
 REM Set code page
@@ -10,7 +10,7 @@ cd /d "%~dp0"
 
 REM Show current directory
 echo ======================================
-echo     Payroll System
+echo     Payroll System Launcher
 echo ======================================
 echo.
 echo Current directory: %cd%
@@ -64,13 +64,13 @@ echo     Starting Payroll System in NEW window...
 echo ======================================
 echo.
 
-REM Start in NEW window (close this window safely)
-start "Payroll System" cmd /k "cd /d \"%~dp0\" && python main.py && pause"
+REM Start in NEW window
+start "Payroll System" pythonw main.py
 
 echo.
 echo ======================================
-echo     Payroll System started in new window
-echo     You can now close THIS window safely
+echo     Payroll System started
+echo     You can now close this window safely
 echo ======================================
 echo.
 timeout /t 3 >nul
