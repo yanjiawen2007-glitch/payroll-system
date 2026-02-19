@@ -12,7 +12,7 @@ class OllamaAnalyzer:
     def __init__(self, db: PayrollDatabase, base_url: str = 'http://localhost:11434'):
         self.db = db
         self.base_url = base_url
-        self.model = 'qwen3:8b'  # 使用 qwen3:8b 模型
+        self.model = 'qwen3:4b'  # 使用 qwen3:4b 模型
 
     def _call_ollama(self, prompt: str) -> str:
         """调用 Ollama API"""
