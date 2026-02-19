@@ -4,6 +4,7 @@ from datetime import datetime
 from database import PayrollDatabase
 from excel_handler import ExcelHandler
 from ollama_analyzer import OllamaAnalyzer
+from feishu_integration import FeishuImporter
 
 
 class PayrollSystemGUI:
@@ -43,18 +44,21 @@ class PayrollSystemGUI:
         self.performance_tab = ttk.Frame(notebook)
         self.payroll_tab = ttk.Frame(notebook)
         self.ai_tab = ttk.Frame(notebook)
+        self.feishu_tab = ttk.Frame(notebook)
         
         notebook.add(self.employee_tab, text="👥 员工管理")
         notebook.add(self.attendance_tab, text="📅 考勤管理")
         notebook.add(self.performance_tab, text="⭐ 绩效管理")
         notebook.add(self.payroll_tab, text="💰 工资核算")
         notebook.add(self.ai_tab, text="🤖 AI 分析")
+        notebook.add(self.feishu_tab, text="🚀 飞书集成")
         
         self.create_employee_tab()
         self.create_attendance_tab()
         self.create_performance_tab()
         self.create_payroll_tab()
         self.create_ai_tab()
+        self.create_feishu_tab()
 
     def create_employee_tab(self):
         toolbar = ttk.Frame(self.employee_tab, padding="5")
@@ -73,15 +77,17 @@ class PayrollSystemGUI:
 
         columns = ('工号', '姓名', '部门', '职位', '基本工资', '入职日期', '状态')
         self.employee_tree = ttk.Treeview(self.employee_tab, columns=columns, show='headings')
+
         for col in columns:
             self.employee_tree.heading(col, text=col)
             self.employee_tree.column(col, width=100)
-        
+
         scrollbar = ttk.Scrollbar(self.employee_tab, orient=tk.VERTICAL, command=self.employee_tree.yview)
         self.employee_tree.configure(yscrollcommand=scrollbar.set)
+
         self.employee_tree.pack(fill=tk.BOTH, expand=True)
         scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-        
+
         self.load_employee_data()
 
     def create_attendance_tab(self):
@@ -93,15 +99,17 @@ class PayrollSystemGUI:
 
         columns = ('工号', '姓名', '部门', '工作天数', '迟到天数', '请假天数', '加班小时')
         self.attendance_tree = ttk.Treeview(self.attendance_tab, columns=columns, show='headings')
+
         for col in columns:
             self.attendance_tree.heading(col, text=col)
             self.attendance_tree.column(col, width=100)
-        
+
         scrollbar = ttk.Scrollbar(self.attendance_tab, orient=tk.VERTICAL, command=self.attendance_tree.yview)
         self.attendance_tree.configure(yscrollcommand=scrollbar.set)
+
         self.attendance_tree.pack(fill=tk.BOTH, expand=True)
         scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-        
+
         self.load_attendance_data()
 
     def create_performance_tab(self):
@@ -113,15 +121,17 @@ class PayrollSystemGUI:
 
         columns = ('工号', '姓名', '绩效分数', '绩效等级', '奖金公式')
         self.performance_tree = ttk.Treeview(self.performance_tab, columns=columns, show='headings')
+
         for col in columns:
             self.performance_tree.heading(col, text=col)
             self.performance_tree.column(col, width=120)
-        
+
         scrollbar = ttk.Scrollbar(self.performance_tab, orient=tk.VERTICAL, command=self.performance_tree.yview)
         self.performance_tree.configure(yscrollcommand=scrollbar.set)
+
         self.performance_tree.pack(fill=tk.BOTH, expand=True)
         scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-        
+
         self.load_performance_data()
 
     def create_payroll_tab(self):
@@ -134,15 +144,17 @@ class PayrollSystemGUI:
         columns = ('工号', '姓名', '部门', '基本工资', '出勤工资', '绩效奖金',
                   '社保扣款', '公积金扣款', '总扣款', '应发工资', '实发工资')
         self.payroll_tree = ttk.Treeview(self.payroll_tab, columns=columns, show='headings')
+
         for col in columns:
             self.payroll_tree.heading(col, text=col)
             self.payroll_tree.column(col, width=100)
-        
+
         scrollbar = ttk.Scrollbar(self.payroll_tab, orient=tk.VERTICAL, command=self.payroll_tree.yview)
         self.payroll_tree.configure(yscrollcommand=scrollbar.set)
+
         self.payroll_tree.pack(fill=tk.BOTH, expand=True)
         scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-        
+
         self.load_payroll_data()
 
     def create_ai_tab(self):
@@ -170,92 +182,80 @@ class PayrollSystemGUI:
         self.ai_output.configure(yscrollcommand=scrollbar.set)
         scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
-    def analyze_overall(self):
-        year = int(self.year_var.get())
-        month = int(self.month_var.get())
-        
-        self.ai_output.delete(1.0, tk.END)
-        self.ai_output.insert(tk.END, f"正在分析 {year}年{month}月 工资数据...\n\n")
-        self.root.update()
-        
-        result = self.ollama_analyzer.analyze_salary_data(year, month)
-        
-        self.ai_output.insert(tk.END, f"【AI 分析结果】\n\n{result}\n\n")
+    def create_feishu_tab(self):
+        """飞书集成标签页"""
+        # 配置区域
+        config_frame = ttk.LabelFrame(self.feishu_tab, text="🔑 飞书API配置", padding="10")
+        config_frame.pack(fill=tk.X, padx=5, pady=5)
 
-    def analyze_employee(self):
-        selected = self.employee_tree.selection()
-        if not selected:
-            messagebox.showwarning("提示", "请先选择一个员工")
-            return
-        
-        employee_id = self.employee_tree.item(selected[0])['values'][0]
-        year = int(self.year_var.get())
-        month = int(self.month_var.get())
-        
-        self.ai_output.delete(1.0, tk.END)
-        self.ai_output.insert(tk.END, f"正在分析员工 {employee_id} 的工资建议...\n\n")
-        self.root.update()
-        
-        result = self.ollama_analyzer.suggest_salary_adjustment(employee_id, year, month)
-        
-        self.ai_output.insert(tk.END, f"【AI 分析结果】\n\n{result}\n\n")
+        ttk.Label(config_frame, text="飞书个人访问令牌:").grid(row=0, column=0, padx=5, pady=5, sticky=tk.W)
+        self.access_token_var = tk.StringVar()
+        ttk.Entry(config_frame, textvariable=self.access_token_var, width=60).grid(row=0, column=1, padx=5, pady=5, sticky=tk.W)
 
-    def predict_trend(self):
-        selected = self.employee_tree.selection()
-        if not selected:
-            messagebox.showwarning("提示", "请先选择一个员工")
-            return
-        
-        employee_id = self.employee_tree.item(selected[0])['values'][0]
-        
-        self.ai_output.delete(1.0, tk.END)
-        self.ai_output.insert(tk.END, f"正在预测员工 {employee_id} 的工资趋势...\n\n")
-        self.root.update()
-        
-        result = self.ollama_analyzer.predict_salary_trend(employee_id)
-        
-        self.ai_output.insert(tk.END, f"【AI 预测结果】\n\n{result}\n\n")
+        ttk.Button(config_frame, text="🔌 测试连接", command=self.test_feishu_connection).grid(row=1, column=0, columnspan=2, pady=10)
 
-    def generate_performance_review(self):
-        selected = self.employee_tree.selection()
-        if not selected:
-            messagebox.showwarning("提示", "请先选择一个员工")
-            return
-        
-        employee_id = self.employee_tree.item(selected[0])['values'][0]
-        year = int(self.year_var.get())
-        month = int(self.month_var.get())
-        
-        self.ai_output.delete(1.0, tk.END)
-        self.ai_output.insert(tk.END, f"正在生成员工 {employee_id} 的绩效评估报告...\n\n")
-        self.root.update()
-        
-        result = self.ollama_analyzer.generate_performance_review(employee_id, year, month)
-        
-        self.ai_output.insert(tk.END, f"【AI 评估报告】\n\n{result}\n\n")
+        # 数据导入区域
+        import_frame = ttk.LabelFrame(self.feishu_tab, text="📥 从飞书导入数据", padding="10")
+        import_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
+
+        # 说明信息
+        info_text = """飞书表格信息（已配置）：
+• Base ID: NbGTbqBPXasagWsfGpHcklrTnnd
+• Table ID: tblHc3G5OyJGjpx2
+
+从飞书一键导入所有数据（员工、考勤、绩效）"""
+        ttk.Label(import_frame, text=info_text, justify=tk.LEFT).grid(row=0, column=0, columnspan=2, pady=10, sticky=tk.W)
+
+        ttk.Button(import_frame, text="📦 一键导入全部数据", command=self.import_all_from_feishu).grid(row=1, column=0, columnspan=2, pady=10)
+
+        # 日志区域
+        log_frame = ttk.LabelFrame(self.feishu_tab, text="📋 导入日志", padding="10")
+        log_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
+
+        self.log_text = tk.Text(log_frame, height=10, state=tk.DISABLED)
+        scrollbar = ttk.Scrollbar(log_frame, orient=tk.VERTICAL, command=self.log_text.yview)
+        self.log_text.configure(yscrollcommand=scrollbar.set)
+
+        self.log_text.pack(fill=tk.BOTH, expand=True)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
+    # ==================== 员工管理 ====================
 
     def load_employee_data(self):
         for item in self.employee_tree.get_children():
             self.employee_tree.delete(item)
+
         employees = self.db.get_all_employees()
+
         for emp in employees:
             self.employee_tree.insert('', tk.END, values=(
-                emp['employee_id'], emp['name'], emp['department'], emp['position'],
-                f"{emp['basic_salary']:.2f}", emp['entry_date'], emp['status']
+                emp['employee_id'],
+                emp['name'],
+                emp['department'],
+                emp['position'],
+                f"{emp['basic_salary']:.2f}",
+                emp['entry_date'],
+                emp['status']
             ))
 
     def add_employee_dialog(self):
         dialog = tk.Toplevel(self.root)
         dialog.title("添加员工")
         dialog.geometry("400x500")
-        
+
         fields = [
-            ('员工工号', ''), ('姓名', ''), ('部门', ''), ('职位', ''),
-            ('基本工资', '5000'), ('社保比例 (0-1)', '0.08'), ('公积金比例 (0-1)', '0.12'),
-            ('医保比例 (0-1)', '0.02'), ('失业保险比例 (0-1)', '0.005'),
+            ('员工工号', ''),
+            ('姓名', ''),
+            ('部门', ''),
+            ('职位', ''),
+            ('基本工资', '5000'),
+            ('社保比例 (0-1)', '0.08'),
+            ('公积金比例 (0-1)', '0.12'),
+            ('医保比例 (0-1)', '0.02'),
+            ('失业保险比例 (0-1)', '0.005'),
             ('入职日期', datetime.now().strftime('%Y-%m-%d'))
         ]
-        
+
         entries = {}
         for i, (label, default) in enumerate(fields):
             ttk.Label(dialog, text=label).grid(row=i, column=0, padx=5, pady=5, sticky=tk.W)
@@ -278,15 +278,18 @@ class PayrollSystemGUI:
                     'unemployed_rate': float(entries['失业保险比例 (0-1)'].get()),
                     'entry_date': entries['入职日期'].get().strip()
                 }
+
                 if not employee_data['employee_id'] or not employee_data['name']:
                     messagebox.showerror("错误", "工号和姓名不能为空")
                     return
+
                 if self.db.add_employee(employee_data):
                     messagebox.showinfo("成功", "员工添加成功")
                     self.load_employee_data()
                     dialog.destroy()
                 else:
                     messagebox.showerror("错误", "员工添加失败，工号可能已存在")
+
             except Exception as e:
                 messagebox.showerror("错误", f"输入格式错误: {str(e)}")
 
@@ -297,19 +300,22 @@ class PayrollSystemGUI:
         if not selected:
             messagebox.showwarning("提示", "请先选择一个员工")
             return
-        
+
         employee_id = self.employee_tree.item(selected[0])['values'][0]
         employee = self.db.get_employee(employee_id)
+
         if not employee:
             return
-        
+
         dialog = tk.Toplevel(self.root)
         dialog.title(f"编辑员工 - {employee['name']}")
         dialog.geometry("400x500")
-        
+
         fields = [
-            ('员工工号', employee['employee_id']), ('姓名', employee['name']),
-            ('部门', employee['department']), ('职位', employee['position']),
+            ('员工工号', employee['employee_id']),
+            ('姓名', employee['name']),
+            ('部门', employee['department']),
+            ('职位', employee['position']),
             ('基本工资', str(employee['basic_salary'])),
             ('社保比例 (0-1)', str(employee['base_social_rate'])),
             ('公积金比例 (0-1)', str(employee['base_fund_rate'])),
@@ -317,7 +323,7 @@ class PayrollSystemGUI:
             ('失业保险比例 (0-1)', str(employee['unemployed_rate'])),
             ('入职日期', employee['entry_date'])
         ]
-        
+
         entries = {}
         for i, (label, default) in enumerate(fields):
             ttk.Label(dialog, text=label).grid(row=i, column=0, padx=5, pady=5, sticky=tk.W)
@@ -339,15 +345,18 @@ class PayrollSystemGUI:
                     'unemployed_rate': float(entries['失业保险比例 (0-1)'].get()),
                     'entry_date': entries['入职日期'].get().strip()
                 }
+
                 if not update_data['name']:
                     messagebox.showerror("错误", "姓名不能为空")
                     return
+
                 if self.db.update_employee(employee_id, update_data):
                     messagebox.showinfo("成功", "员工信息更新成功")
                     self.load_employee_data()
                     dialog.destroy()
                 else:
                     messagebox.showerror("错误", "员工信息更新失败")
+
             except Exception as e:
                 messagebox.showerror("错误", f"输入格式错误: {str(e)}")
 
@@ -358,10 +367,10 @@ class PayrollSystemGUI:
         if not selected:
             messagebox.showwarning("提示", "请先选择一个员工")
             return
-        
+
         employee_id = self.employee_tree.item(selected[0])['values'][0]
         employee_name = self.employee_tree.item(selected[0])['values'][1]
-        
+
         if messagebox.askyesno("确认", f"确定要删除员工 {employee_name} (工号: {employee_id}) 吗？"):
             if self.db.delete_employee(employee_id):
                 messagebox.showinfo("成功", "员工删除成功")
@@ -371,17 +380,25 @@ class PayrollSystemGUI:
 
     def search_employee(self):
         keyword = self.employee_search_var.get().strip().lower()
+
         for item in self.employee_tree.get_children():
             self.employee_tree.delete(item)
-        
+
         employees = self.db.get_all_employees()
+
         for emp in employees:
             if (keyword in emp['employee_id'].lower() or
                 keyword in emp['name'].lower() or
                 keyword in emp['department'].lower()):
+
                 self.employee_tree.insert('', tk.END, values=(
-                    emp['employee_id'], emp['name'], emp['department'], emp['position'],
-                    f"{emp['basic_salary']:.2f}", emp['entry_date'], emp['status']
+                    emp['employee_id'],
+                    emp['name'],
+                    emp['department'],
+                    emp['position'],
+                    f"{emp['basic_salary']:.2f}",
+                    emp['entry_date'],
+                    emp['status']
                 ))
 
     def export_employee_list(self):
@@ -391,20 +408,28 @@ class PayrollSystemGUI:
         else:
             messagebox.showerror("错误", result['message'])
 
+    # ==================== 考勤管理 ====================
+
     def load_attendance_data(self):
         for item in self.attendance_tree.get_children():
             self.attendance_tree.delete(item)
-        
+
         year = int(self.year_var.get())
         month = int(self.month_var.get())
-        
+
         attendance_records = self.db.get_all_attendance(year, month)
+
         for record in attendance_records:
             employee = self.db.get_employee(record['employee_id'])
             if employee:
                 self.attendance_tree.insert('', tk.END, values=(
-                    record['employee_id'], employee['name'], employee['department'],
-                    record['work_days'], record['late_days'], record['leave_days'], record['overtime_hours']
+                    record['employee_id'],
+                    employee['name'],
+                    employee['department'],
+                    record['work_days'],
+                    record['late_days'],
+                    record['leave_days'],
+                    record['overtime_hours']
                 ))
 
     def import_attendance(self):
@@ -412,13 +437,15 @@ class PayrollSystemGUI:
             title="选择考勤 Excel 文件",
             filetypes=[("Excel 文件", "*.xlsx *.xls")]
         )
+
         if not file_path:
             return
-        
+
         year = int(self.year_var.get())
         month = int(self.month_var.get())
-        
+
         result = self.excel_handler.import_attendance_from_excel(file_path, year, month)
+
         if result['success']:
             messagebox.showinfo("成功", result['message'])
             self.load_attendance_data()
@@ -432,24 +459,34 @@ class PayrollSystemGUI:
         else:
             messagebox.showerror("错误", result['message'])
 
+    # ==================== 绩效管理 ====================
+
     def load_performance_data(self):
         for item in self.performance_tree.get_children():
             self.performance_tree.delete(item)
-        
+
         year = int(self.year_var.get())
         month = int(self.month_var.get())
-        
+
         employees = self.db.get_all_employees()
+
         for emp in employees:
             performance = self.db.get_performance(emp['employee_id'], year, month)
             if performance:
                 self.performance_tree.insert('', tk.END, values=(
-                    emp['employee_id'], emp['name'],
-                    performance['score'], performance['grade'], performance['bonus_formula']
+                    emp['employee_id'],
+                    emp['name'],
+                    performance['score'],
+                    performance['grade'],
+                    performance['bonus_formula']
                 ))
             else:
                 self.performance_tree.insert('', tk.END, values=(
-                    emp['employee_id'], emp['name'], '', '', ''
+                    emp['employee_id'],
+                    emp['name'],
+                    '',
+                    '',
+                    ''
                 ))
 
     def import_performance(self):
@@ -457,13 +494,15 @@ class PayrollSystemGUI:
             title="选择绩效 Excel 文件",
             filetypes=[("Excel 文件", "*.xlsx *.xls")]
         )
+
         if not file_path:
             return
-        
+
         year = int(self.year_var.get())
         month = int(self.month_var.get())
-        
+
         result = self.excel_handler.import_performance_from_excel(file_path, year, month)
+
         if result['success']:
             messagebox.showinfo("成功", result['message'])
             self.load_performance_data()
@@ -477,53 +516,65 @@ class PayrollSystemGUI:
         else:
             messagebox.showerror("错误", result['message'])
 
+    # ==================== 工资核算 ====================
+
     def load_payroll_data(self):
         for item in self.payroll_tree.get_children():
             self.payroll_tree.delete(item)
-        
+
         year = int(self.year_var.get())
         month = int(self.month_var.get())
-        
+
         payroll_records = self.db.get_payroll(year, month)
+
         for record in payroll_records:
             self.payroll_tree.insert('', tk.END, values=(
-                record['employee_id'], record['name'], record['department'],
-                f"{record['basic_salary']:.2f}", f"{record['attendance_salary']:.2f}",
-                f"{record['performance_bonus']:.2f}", f"{record['social_deduction']:.2f}",
-                f"{record['fund_deduction']:.2f}", f"{record['total_deduction']:.2f}",
-                f"{record['gross_salary']:.2f}", f"{record['net_salary']:.2f}"
+                record['employee_id'],
+                record['name'],
+                record['department'],
+                f"{record['basic_salary']:.2f}",
+                f"{record['attendance_salary']:.2f}",
+                f"{record['performance_bonus']:.2f}",
+                f"{record['social_deduction']:.2f}",
+                f"{record['fund_deduction']:.2f}",
+                f"{record['total_deduction']:.2f}",
+                f"{record['gross_salary']:.2f}",
+                f"{record['net_salary']:.2f}"
             ))
 
     def calculate_all_salaries(self):
         year = int(self.year_var.get())
         month = int(self.month_var.get())
-        
+
         employees = self.db.get_all_employees()
+
         if not employees:
             messagebox.showwarning("提示", "没有员工数据，请先添加员工")
             return
-        
+
         if not messagebox.askyesno("确认", f"确定要计算 {year}年{month}月 所有员工的工资吗？"):
             return
-        
+
         success_count = 0
         failed_count = 0
-        
+
         for emp in employees:
             result = self.db.calculate_salary(emp['employee_id'], year, month)
             if result:
                 success_count += 1
             else:
                 failed_count += 1
-        
+
         messagebox.showinfo("完成", f"工资计算完成\n成功: {success_count} 人\n失败: {failed_count} 人")
+
         self.load_payroll_data()
 
     def export_payroll(self):
         year = int(self.year_var.get())
         month = int(self.month_var.get())
-        
+
         result = self.excel_handler.export_payroll_to_excel(year, month)
+
         if result['success']:
             messagebox.showinfo("成功", f"{result['message']}\n文件路径: {result['file_path']}")
         else:
@@ -532,11 +583,171 @@ class PayrollSystemGUI:
     def refresh_data(self):
         self.current_year = int(self.year_var.get())
         self.current_month = int(self.month_var.get())
+
         self.load_employee_data()
         self.load_attendance_data()
         self.load_performance_data()
         self.load_payroll_data()
         messagebox.showinfo("提示", "数据刷新完成")
+
+    # ==================== AI 分析 ====================
+
+    def analyze_overall(self):
+        year = int(self.year_var.get())
+        month = int(self.month_var.get())
+
+        self.ai_output.delete(1.0, tk.END)
+        self.ai_output.insert(tk.END, "正在分析工资数据...\n")
+        self.ai_output.insert(tk.END, f"年份: {year}年，月份: {month}月\n")
+        self.ai_output.insert(tk.END, "-" * 50 + "\n")
+        self.root.update()
+
+        result = self.ollama_analyzer.analyze_salary_data(year, month)
+        self.ai_output.insert(tk.END, result)
+        self.ai_output.insert(tk.END, "\n" + "-" * 50 + "\n")
+        self.ai_output.insert(tk.END, "✅ 分析完毕！\n")
+        self.ai_output.see(tk.END)
+
+    def analyze_employee(self):
+        employee_id = simpledialog.askstring("员工工号", "请输入员工工号：")
+
+        if not employee_id:
+            return
+
+        year = int(self.year_var.get())
+        month = int(self.month_var.get())
+
+        self.ai_output.delete(1.0, tk.END)
+        self.ai_output.insert(tk.END, f"正在分析员工 {employee_id} 的工资数据...\n")
+        self.ai_output.insert(tk.END, "-" * 50 + "\n")
+        self.root.update()
+
+        result = self.ollama_analyzer.analyze_employee(employee_id, year, month)
+        self.ai_output.insert(tk.END, result)
+        self.ai_output.insert(tk.END, "\n" + "-" * 50 + "\n")
+        self.ai_output.insert(tk.END, "✅ 分析完毕！\n")
+        self.ai_output.see(tk.END)
+
+    def predict_trend(self):
+        employee_id = simpledialog.askstring("员工工号", "请输入员工工号：")
+
+        if not employee_id:
+            return
+
+        self.ai_output.delete(1.0, tk.END)
+        self.ai_output.insert(tk.END, f"正在预测员工 {employee_id} 的工资趋势...\n")
+        self.ai_output.insert(tk.END, "-" * 50 + "\n")
+        self.root.update()
+
+        result = self.ollama_analyzer.predict_salary_trend(employee_id)
+        self.ai_output.insert(tk.END, result)
+        self.ai_output.insert(tk.END, "\n" + "-" * 50 + "\n")
+        self.ai_output.insert(tk.END, "✅ 分析完毕！\n")
+        self.ai_output.see(tk.END)
+
+    def generate_performance_review(self):
+        employee_id = simpledialog.askstring("员工工号", "请输入员工工号：")
+
+        if not employee_id:
+            return
+
+        year = int(self.year_var.get())
+        month = int(self.month_var.get())
+
+        self.ai_output.delete(1.0, tk.END)
+        self.ai_output.insert(tk.END, f"正在为员工 {employee_id} 生成绩效评估报告...\n")
+        self.ai_output.insert(tk.END, "-" * 50 + "\n")
+        self.root.update()
+
+        result = self.ollama_analyzer.generate_performance_review(employee_id, year, month)
+        self.ai_output.insert(tk.END, result)
+        self.ai_output.insert(tk.END, "\n" + "-" * 50 + "\n")
+        self.ai_output.insert(tk.END, "✅ 分析完毕！\n")
+        self.ai_output.see(tk.END)
+
+    # ==================== 飞书集成 ====================
+
+    def log_message(self, message: str):
+        """记录日志"""
+        self.log_text.config(state=tk.NORMAL)
+        self.log_text.insert(tk.END, message + "\n")
+        self.log_text.see(tk.END)
+        self.log_text.config(state=tk.DISABLED)
+
+    def test_feishu_connection(self):
+        """测试飞书连接"""
+        access_token = self.access_token_var.get().strip()
+
+        if not access_token:
+            messagebox.showerror("错误", "请输入飞书个人访问令牌")
+            return
+
+        try:
+            importer = FeishuImporter(access_token)
+            data = importer.import_all()
+
+            if data["employees"]:
+                self.log_message("✅ 飞书连接成功！")
+                messagebox.showinfo("成功", f"飞书连接成功！\n\n发现数据：\n• {len(data['employees'])} 名员工\n• {len(data['attendance'])} 条考勤记录\n• {len(data['performance'])} 条绩效记录")
+            else:
+                self.log_message("⚠️ 飞书连接成功，但没有数据")
+                messagebox.showwarning("提示", "飞书连接成功，但表格中没有数据")
+
+        except Exception as e:
+            self.log_message(f"❌ 飞书连接失败: {str(e)}")
+            messagebox.showerror("错误", f"飞书连接失败: {str(e)}")
+
+    def import_all_from_feishu(self):
+        """一键导入全部数据"""
+        access_token = self.access_token_var.get().strip()
+
+        if not access_token:
+            messagebox.showerror("错误", "请输入飞书个人访问令牌")
+            return
+
+        if not messagebox.askyesno("确认", "确定要从飞书导入全部数据吗？\n包括：员工、考勤、绩效"):
+            return
+
+        try:
+            self.log_message("=" * 50)
+            self.log_message("📥 开始从飞书导入数据...")
+
+            importer = FeishuImporter(access_token)
+            data = importer.import_all()
+
+            if not data["employees"]:
+                self.log_message("⚠️ 飞书表格中没有数据")
+                messagebox.showwarning("提示", "飞书表格中没有数据")
+                return
+
+            # 导入员工
+            self.log_message("📥 正在导入员工数据...")
+            emp_count = self.db.import_employees_from_feishu(data["employees"])
+            self.log_message(f"✅ 员工数据导入完成：{emp_count} 条")
+
+            # 导入考勤
+            self.log_message("📥 正在导入考勤数据...")
+            att_count = self.db.import_attendance_from_feishu(data["attendance"])
+            self.log_message(f"✅ 考勤数据导入完成：{att_count} 条")
+
+            # 导入绩效
+            self.log_message("📥 正在导入绩效数据...")
+            perf_count = self.db.import_performance_from_feishu(data["performance"])
+            self.log_message(f"✅ 绩效数据导入完成：{perf_count} 条")
+
+            self.log_message("=" * 50)
+            self.log_message("✅ 全部数据导入完成！")
+
+            # 刷新界面
+            self.load_employee_data()
+            self.load_attendance_data()
+            self.load_performance_data()
+
+            messagebox.showinfo("完成", f"数据导入完成！\n\n员工：{emp_count} 条\n考勤：{att_count} 条\n绩效：{perf_count} 条")
+
+        except Exception as e:
+            self.log_message(f"❌ 导入失败: {str(e)}")
+            messagebox.showerror("错误", f"导入失败: {str(e)}")
 
 
 def main():
