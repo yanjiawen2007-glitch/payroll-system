@@ -9,7 +9,7 @@ from ollama_analyzer import OllamaAnalyzer
 class PayrollSystemGUI:
     def __init__(self, root):
         self.root = root
-        self.root.title("工资核算系统 - Payroll Anytime")
+        self.root.title("Payroll Anytime")
         self.root.geometry("1400x850")
         self.root.configure(bg='#FFFFFF')
         
@@ -30,7 +30,7 @@ class PayrollSystemGUI:
         title_frame.pack(side=tk.LEFT, padx=30, pady=15)
         
         title_label = tk.Label(title_frame, 
-                              text="工资核算系统",
+                              text="Payroll Anytime",
                               font=('Segoe UI', 14, 'bold'),
                               bg='#FFFFFF',
                               fg='#1D1D1F')
