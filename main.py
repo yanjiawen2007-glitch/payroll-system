@@ -40,13 +40,6 @@ class PayrollSystemGUI:
         self.root.geometry("1400x800")
         self.root.configure(bg=ModernStyle.COLORS['bg_primary'])
         
-        # 设置窗口图标（如果有）
-        try:
-            if platform.system() == 'Windows':
-                self.root.iconbitmap('icon.ico') if False else None
-        except:
-            pass
-        
         self.db = PayrollDatabase()
         self.excel_handler = ExcelHandler(self.db)
         self.ollama_analyzer = OllamaAnalyzer(self.db)
@@ -57,7 +50,7 @@ class PayrollSystemGUI:
         self.create_main_interface()
 
     def setup_styles(self):
-        """配置Ttk样式"""
+        """配置Tk样式"""
         style = ttk.Style()
         
         # 配置Notebook标签
@@ -93,7 +86,8 @@ class PayrollSystemGUI:
                       background=ModernStyle.COLORS['accent_blue'],
                       foreground='white',
                       borderwidth=0,
-                      padding=[20, 10],
+                      padx=20,
+                      pady=10,
                       font=ModernStyle.FONTS['body'])
         
         style.map('Modern.TButton',
@@ -104,7 +98,8 @@ class PayrollSystemGUI:
                       background=ModernStyle.COLORS['bg_secondary'],
                       foreground=ModernStyle.COLORS['text_primary'],
                       borderwidth=0,
-                      padding=[20, 10],
+                      padx=20,
+                      pady=10,
                       font=ModernStyle.FONTS['body'])
         
         style.map('Secondary.TButton',
@@ -332,11 +327,18 @@ class PayrollSystemGUI:
 
     def create_modern_button(self, parent, text, style_type, command):
         """创建现代风格按钮"""
+        if style_type == "modern":
+            bg = ModernStyle.COLORS['accent_blue']
+            fg = 'white'
+        else:
+            bg = ModernStyle.COLORS['bg_secondary']
+            fg = ModernStyle.COLORS['text_primary']
+        
         btn = tk.Button(parent,
                        text=text,
                        command=command,
-                       bg=ModernStyle.COLORS['accent_blue'] if style_type == "modern" else ModernStyle.COLORS['bg_secondary'],
-                       fg='white' if style_type == "modern" else ModernStyle.COLORS['text_primary'],
+                       bg=bg,
+                       fg=fg,
                        borderwidth=0,
                        padx=20,
                        pady=10,
@@ -522,6 +524,7 @@ class PayrollSystemGUI:
             if (keyword in emp['employee_id'].lower() or
                 keyword in emp['name'].lower() or
                 keyword in emp['department'].lower()):
+
                 self.employee_tree.insert('', tk.END, values=(
                     emp['employee_id'],
                     emp['name'],
